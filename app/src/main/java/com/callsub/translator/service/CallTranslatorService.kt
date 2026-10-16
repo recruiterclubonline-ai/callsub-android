@@ -14,12 +14,13 @@ import com.callsub.translator.R
 import com.callsub.translator.audio.AudioCaptureEngine
 import com.callsub.translator.network.GeminiLiveClient
 import com.callsub.translator.storage.SecureKeyStorage
+import com.callsub.translator.storage.TranscriptLogger
 import com.callsub.translator.tts.QuickPhrasesPlayer
 import com.callsub.translator.ui.OverlayManager
 import kotlinx.coroutines.*
 
 /**
- * Неубиваемый Foreground Service, связывающий микрофон, Gemini AI и плавающий оверлей.
+ * Неубиваемый Foreground Service, связывающий микрофон, Gemini AI, оверлей и сохранение логов.
  */
 class CallTranslatorService : Service() {
 
@@ -27,7 +28,11 @@ class CallTranslatorService : Service() {
     private var geminiClient: GeminiLiveClient? = null
     private var overlayManager: OverlayManager? = null
     private var phrasesPlayer: QuickPhrasesPlayer? = null
+    private var transcriptLogger: TranscriptLogger? = null
     private var serviceScope: CoroutineScope? = null
+
+    @Volatile
+    private var isTtsSpeaking = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -52,7 +57,13 @@ class CallTranslatorService : Service() {
 
         serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-        phrasesPlayer = QuickPhrasesPlayer(this)
+        transcriptLogger = TranscriptLogger(this).apply { startNewSession() }
+
+        phrasesPlayer = QuickPhrasesPlayer(this) { isSpeaking ->
+            isTtsSpeaking = isSpeaking
+            overlayManager?.setSpeakerActive(!isSpeaking)
+        }
+
         overlayManager = OverlayManager(this, phrasesPlayer).apply { show() }
         overlayManager?.setStatusColor(R.drawable.circle_yellow)
 
@@ -69,6 +80,7 @@ class CallTranslatorService : Service() {
         val liveClient = geminiClient ?: return
         val audio = audioEngine ?: return
         val overlay = overlayManager ?: return
+        val logger = transcriptLogger
 
         // 1. Мониторинг статуса соединения
         scope.launch {
@@ -90,17 +102,20 @@ class CallTranslatorService : Service() {
             }
         }
 
-        // 2. Передача аудио с микрофона в Google AI Studio
+        // 2. Передача аудио с микрофона в Google AI Studio (с пропуском, когда говорит собственный TTS)
         scope.launch {
             audio.audioFlow.collect { pcmChunk ->
-                liveClient.sendPcmChunk(pcmChunk)
+                if (!isTtsSpeaking) {
+                    liveClient.sendPcmChunk(pcmChunk)
+                }
             }
         }
 
-        // 3. Вывод полученных субтитров на экран
+        // 3. Вывод полученных субтитров на экран и сохранение в историю
         scope.launch {
             liveClient.subtitlesFlow.collect { textToken ->
                 overlay.appendStreamingTranslation(textToken)
+                logger?.logEntry(germanText = "", russianText = textToken)
             }
         }
     }
@@ -120,6 +135,8 @@ class CallTranslatorService : Service() {
 
         phrasesPlayer?.release()
         phrasesPlayer = null
+
+        transcriptLogger = null
 
         Log.i(TAG, "CallTranslatorService остановлен и ресурсы освобождены")
         super.onDestroy()

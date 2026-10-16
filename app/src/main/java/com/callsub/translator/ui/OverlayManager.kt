@@ -21,6 +21,7 @@ class OverlayManager(
 
     private var tvGerman: TextView? = null
     private var tvRussian: TextView? = null
+    private var tvSpeakerIcon: TextView? = null
     private var statusIndicator: View? = null
 
     private val fontSizes = floatArrayOf(18f, 22f, 28f)
@@ -36,6 +37,7 @@ class OverlayManager(
 
         tvGerman = view.findViewById(R.id.tv_german)
         tvRussian = view.findViewById(R.id.tv_russian)
+        tvSpeakerIcon = view.findViewById(R.id.tv_speaker_icon)
         statusIndicator = view.findViewById(R.id.status_indicator)
 
         val layoutParams = WindowManager.LayoutParams(
@@ -105,6 +107,10 @@ class OverlayManager(
         view.findViewById<View>(R.id.btn_moment)?.setOnClickListener {
             phrasesPlayer?.speakOneMoment()
         }
+
+        view.findViewById<View>(R.id.btn_ja)?.setOnClickListener {
+            phrasesPlayer?.speakJaGenau()
+        }
     }
 
     fun updateSubtitles(germanText: String, russianText: String) {
@@ -125,6 +131,12 @@ class OverlayManager(
         }
     }
 
+    fun setSpeakerActive(isRemoteSpeaker: Boolean) {
+        tvSpeakerIcon?.post {
+            tvSpeakerIcon?.text = if (isRemoteSpeaker) "🔊" else "🎤"
+        }
+    }
+
     fun setStatusColor(colorResId: Int) {
         statusIndicator?.post {
             statusIndicator?.background = ContextCompat.getDrawable(context, colorResId)
@@ -140,6 +152,7 @@ class OverlayManager(
         overlayView = null
         tvGerman = null
         tvRussian = null
+        tvSpeakerIcon = null
         statusIndicator = null
     }
 }

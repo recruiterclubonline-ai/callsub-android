@@ -45,6 +45,16 @@
             </intent-filter>
         </activity>
 
+        <!-- Экран первого запуска (Onboarding) -->
+        <activity
+            android:name=".ui.OnboardingActivity"
+            android:exported="false" />
+
+        <!-- Экран истории и стенограмм звонков -->
+        <activity
+            android:name=".ui.TranscriptViewActivity"
+            android:exported="false" />
+
         <!-- Неубиваемый фоновый сервис перевода -->
         <service
             android:name=".service.CallTranslatorService"

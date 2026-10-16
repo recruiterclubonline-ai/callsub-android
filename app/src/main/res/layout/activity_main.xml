@@ -10,24 +10,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#1F2937" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/subtitle_settings"
-            android:textSize="14sp"
-            android:textColor="#6B7280"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="24dp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subtitle_settings"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_open_history"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📜 История"
+                android:textSize="12sp" />
+        </LinearLayout>
 
         <!-- Блок ввода API-ключа -->
         <com.google.android.material.card.MaterialCardView
@@ -37,7 +58,8 @@
             app:cardElevation="2dp"
             app:strokeWidth="1dp"
             app:strokeColor="#E5E7EB"
-            android:layout_marginBottom="16dp">
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -73,7 +95,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_save_key"
-                    android:layout_marginTop="12dp" />
+                    android:layout_marginTop="10dp" />
 
                 <TextView
                     android:id="@+id/tv_key_status"
@@ -82,12 +104,12 @@
                     android:text="@string/status_key_not_saved"
                     android:textSize="12sp"
                     android:textColor="#DC2626"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="6dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Блок тестирования -->
+        <!-- Блок диагностики и теста микрофона -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,7 +117,7 @@
             app:cardElevation="2dp"
             app:strokeWidth="1dp"
             app:strokeColor="#E5E7EB"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -106,18 +128,61 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ручной запуск / Тест"
+                    android:text="Диагностика микрофона и ИИ"
                     android:textStyle="bold"
                     android:textColor="#111827"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/tv_mic_test_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Проверьте, захватывает ли микрофон звук и отвечает ли Google AI."
+                    android:textSize="13sp"
+                    android:textColor="#4B5563"
+                    android:layout_marginBottom="10dp" />
+
+                <Button
+                    android:id="@+id/btn_run_mic_test"
+                    style="@style/Widget.MaterialComponents.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🎙️ Экспресс-тест (3 сек)" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Блок ручного перевода / теста оверлея -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#E5E7EB"
+            android:layout_marginBottom="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Нажмите для проверки работы субтитров без реального звонка. Включите на ноутбуке или другом телефоне любое немецкое видео."
+                    android:text="Ручной запуск перевода"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Запускает субтитры без звонка (для звонков в WhatsApp, Telegram или проверки)."
                     android:textSize="13sp"
                     android:textColor="#4B5563"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="10dp" />
 
                 <Button
                     android:id="@+id/btn_toggle_service"
@@ -128,16 +193,13 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Инструкция -->
-        <TextView
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btn_reopen_onboarding"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="💡 Как пользоваться:\n1. Вставьте ключ из aistudio.google.com и сохраните\n2. При входящем или исходящем звонке включите громкую связь\n3. Субтитры появятся на экране поверх звонка автоматически\n4. Окно субтитров можно свободно перетаскивать пальцем по экрану"
-            android:textSize="13sp"
-            android:textColor="#374151"
-            android:lineSpacingExtra="4dp"
-            android:background="#E5E7EB"
-            android:padding="16dp" />
+            android:layout_gravity="center_horizontal"
+            android:text="Инструкция для звонков в Германии" />
 
     </LinearLayout>
 </ScrollView>

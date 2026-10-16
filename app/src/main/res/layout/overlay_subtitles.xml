@@ -9,7 +9,7 @@
     android:layout_margin="8dp"
     android:elevation="12dp">
 
-    <!-- Верхняя панель: Индикатор + Немецкий оригинал + Кнопка сворачивания -->
+    <!-- Верхняя панель: Статус + Индикатор Говорящего + Немецкий оригинал + Кнопка управления -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,16 @@
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:background="@drawable/circle_green"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="6dp" />
+
+        <!-- Иконка говорящего (🔊 Собеседник / 🎤 Вы говорите) -->
+        <TextView
+            android:id="@+id/tv_speaker_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔊"
+            android:textSize="14sp"
+            android:layout_marginEnd="6dp" />
 
         <!-- Исходная речь на немецком языке -->
         <TextView
@@ -78,13 +87,25 @@
         android:maxLines="4"
         android:text="Слушаю немецкую речь собеседника..." />
 
-    <!-- Нижняя панель быстрых действий: Langsamer + Moment -->
+    <!-- Нижняя панель быстрых действий: Langsamer + Moment + Ja/Nein -->
     <LinearLayout
         android:id="@+id/panel_actions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="end">
+
+        <!-- Кнопка фразы "Да, понятно" (Ja, genau) -->
+        <TextView
+            android:id="@+id/btn_ja"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✓ Ja"
+            android:textColor="@color/accent_yellow"
+            android:textSize="12sp"
+            android:padding="6dp"
+            android:clickable="true"
+            android:focusable="true" />
 
         <!-- Кнопка экстренной фразы "Einen Moment" -->
         <TextView
@@ -95,6 +116,7 @@
             android:textColor="@color/accent_yellow"
             android:textSize="12sp"
             android:padding="6dp"
+            android:layout_marginStart="6dp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -107,7 +129,7 @@
             android:textColor="@color/accent_yellow"
             android:textSize="12sp"
             android:padding="6dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="6dp"
             android:clickable="true"
             android:focusable="true" />
 
