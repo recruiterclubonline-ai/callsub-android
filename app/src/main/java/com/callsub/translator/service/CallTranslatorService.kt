@@ -44,7 +44,15 @@ class CallTranslatorService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "CallTranslatorService запущен")
 
-        startForeground(NOTIFICATION_ID, buildForegroundNotification())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID,
+                buildForegroundNotification(),
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, buildForegroundNotification())
+        }
 
         val storage = SecureKeyStorage(this)
         val apiKey = storage.getApiKey()
