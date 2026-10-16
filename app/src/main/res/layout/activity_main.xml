@@ -144,7 +144,7 @@
 
                 <Button
                     android:id="@+id/btn_run_mic_test"
-                    style="@style/Widget.MaterialComponents.Button.TonalButton"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="🎙️ Экспресс-тест (3 сек)" />
