@@ -30,6 +30,7 @@ class CallTranslatorService : Service() {
     private var phrasesPlayer: QuickPhrasesPlayer? = null
     private var transcriptLogger: TranscriptLogger? = null
     private var serviceScope: CoroutineScope? = null
+    private var wakeLock: android.os.PowerManager.WakeLock? = null
 
     @Volatile
     private var isTtsSpeaking = false
@@ -61,6 +62,15 @@ class CallTranslatorService : Service() {
             Log.e(TAG, "Ключ Gemini API не настроен! Завершение сервиса.")
             stopSelf()
             return START_NOT_STICKY
+        }
+
+        try {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            wakeLock = powerManager.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "CallSub:TranslatorWakeLock").apply {
+                acquire(60 * 60 * 1000L) // 1 hour safety limit
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Не удалось захватить WakeLock: ${e.message}")
         }
 
         serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -145,6 +155,13 @@ class CallTranslatorService : Service() {
         phrasesPlayer = null
 
         transcriptLogger = null
+
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+            }
+        } catch (_: Exception) {}
+        wakeLock = null
 
         Log.i(TAG, "CallTranslatorService остановлен и ресурсы освобождены")
         super.onDestroy()

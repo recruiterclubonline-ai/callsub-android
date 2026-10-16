@@ -4,14 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#F8F9FA">
+    android:background="#0B0F17">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="36dp"
+        android:paddingBottom="28dp">
 
+        <!-- Header: Логотип, Заголовок и Кнопка Истории -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,78 +28,144 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
+                <!-- Бейдж статуса готовности -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_badge_lang"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ГОТОВ К ЗВОНКАМ"
+                        android:textColor="#10B981"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/app_name"
                     android:textSize="26sp"
                     android:textStyle="bold"
-                    android:textColor="#1F2937" />
+                    android:textColor="#F8FAFC" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/subtitle_settings"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
+                    android:text="Живой переводчик звонков: DE ➔ RU"
+                    android:textSize="13sp"
+                    android:textColor="#94A3B8"
                     android:layout_marginTop="2dp" />
             </LinearLayout>
 
+            <!-- Кнопка перехода в историю -->
             <Button
                 android:id="@+id/btn_open_history"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📜 История"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textColor="#38BDF8"
+                app:strokeColor="#1E293B"
+                app:cornerRadius="12dp" />
         </LinearLayout>
 
-        <!-- Блок ввода API-ключа -->
+        <!-- Блок 1: API-ключ Google AI Studio -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E5E7EB"
-            android:layout_marginTop="18dp"
+            app:strokeColor="#1E293B"
+            app:cardBackgroundColor="#131B2A"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔑"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Google AI Studio API Key"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#F8FAFC" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Google AI Studio API Key"
-                    android:textStyle="bold"
-                    android:textColor="#111827"
-                    android:layout_marginBottom="8dp" />
+                    android:text="Ключ уже предустановлен в сборке. Модель: gemini-2.5-flash."
+                    android:textSize="12sp"
+                    android:textColor="#94A3B8"
+                    android:layout_marginBottom="10dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_api_key"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/hint_api_key"
-                    app:endIconMode="password_toggle">
+                    app:boxBackgroundColor="#0B0F17"
+                    app:boxStrokeColor="#38BDF8"
+                    app:hintTextColor="#38BDF8"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="#94A3B8">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_api_key"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="#F8FAFC"
+                        android:textColorHint="#64748B"
                         android:inputType="textPassword"
                         android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
                     android:id="@+id/btn_save_key"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_save_key"
-                    android:layout_marginTop="10dp" />
+                    android:textColor="#FFFFFF"
+                    app:backgroundTint="#4F46E5"
+                    app:cornerRadius="12dp"
+                    android:layout_marginTop="12dp" />
 
                 <TextView
                     android:id="@+id/tv_key_status"
@@ -103,103 +173,146 @@
                     android:layout_height="wrap_content"
                     android:text="@string/status_key_not_saved"
                     android:textSize="12sp"
-                    android:textColor="#DC2626"
-                    android:layout_marginTop="6dp" />
+                    android:textColor="#EF4444"
+                    android:layout_marginTop="8dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Блок диагностики и теста микрофона -->
+        <!-- Блок 2: Экспресс-диагностика микрофона и ИИ -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E5E7EB"
+            app:strokeColor="#1E293B"
+            app:cardBackgroundColor="#131B2A"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Диагностика микрофона и ИИ"
-                    android:textStyle="bold"
-                    android:textColor="#111827"
-                    android:layout_marginBottom="6dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎙️"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Экспресс-тест перевода (3 сек)"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#F8FAFC" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_mic_test_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Проверьте, захватывает ли микрофон звук и отвечает ли Google AI."
+                    android:text="Нажмите кнопку и произнесите фразу на немецком (например: «Guten Tag»). Приложение запишет 3 секунды и покажет перевод."
                     android:textSize="13sp"
-                    android:textColor="#4B5563"
-                    android:layout_marginBottom="10dp" />
+                    android:textColor="#94A3B8"
+                    android:lineSpacingMultiplier="1.2"
+                    android:layout_marginBottom="12dp" />
 
                 <Button
                     android:id="@+id/btn_run_mic_test"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🎙️ Экспресс-тест (3 сек)" />
+                    android:text="⚡ Начать экспресс-тест"
+                    android:textColor="#FFFFFF"
+                    app:backgroundTint="#0284C7"
+                    app:cornerRadius="12dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Блок ручного перевода / теста оверлея -->
+        <!-- Блок 3: Ручной запуск оверлея / Мессенджеры -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E5E7EB"
-            android:layout_marginBottom="14dp">
+            app:strokeColor="#1E293B"
+            app:cardBackgroundColor="#131B2A"
+            android:layout_marginBottom="18dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💬"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ручной запуск оверлея"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#F8FAFC" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ручной запуск перевода"
-                    android:textStyle="bold"
-                    android:textColor="#111827"
-                    android:layout_marginBottom="6dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Запускает субтитры без звонка (для звонков в WhatsApp, Telegram или проверки)."
+                    android:text="Запускает субтитры без телефонного звонка (для звонков через WhatsApp, Telegram или проверки плавающего окна)."
                     android:textSize="13sp"
-                    android:textColor="#4B5563"
-                    android:layout_marginBottom="10dp" />
+                    android:textColor="#94A3B8"
+                    android:lineSpacingMultiplier="1.2"
+                    android:layout_marginBottom="12dp" />
 
                 <Button
                     android:id="@+id/btn_toggle_service"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/btn_start_test" />
+                    android:text="@string/btn_start_test"
+                    android:textColor="#FFFFFF"
+                    app:backgroundTint="#059669"
+                    app:cornerRadius="12dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Кнопка Инструкции внизу -->
         <Button
             android:id="@+id/btn_reopen_onboarding"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Инструкция для звонков в Германии" />
+            android:textColor="#38BDF8"
+            android:text="💡 Инструкция для звонков в Германии" />
 
     </LinearLayout>
 </ScrollView>

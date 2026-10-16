@@ -5,11 +5,23 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/bg_overlay_rounded"
-    android:padding="14dp"
-    android:layout_margin="8dp"
-    android:elevation="12dp">
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="14dp"
+    android:layout_margin="10dp"
+    android:elevation="16dp">
 
-    <!-- Верхняя панель: Статус + Индикатор Говорящего + Немецкий оригинал + Кнопка управления -->
+    <!-- Ручка перетаскивания (Drag Handle) -->
+    <View
+        android:id="@+id/drag_handle"
+        android:layout_width="38dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_drag_handle"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Верхняя панель: Статус + Язык + Немецкий оригинал + Кнопки настроек -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,7 +36,7 @@
             android:background="@drawable/circle_green"
             android:layout_marginEnd="6dp" />
 
-        <!-- Иконка говорящего (🔊 Собеседник / 🎤 Вы говорите) -->
+        <!-- Иконка динамика/микрофона -->
         <TextView
             android:id="@+id/tv_speaker_icon"
             android:layout_width="wrap_content"
@@ -33,7 +45,18 @@
             android:textSize="14sp"
             android:layout_marginEnd="6dp" />
 
-        <!-- Исходная речь на немецком языке -->
+        <!-- Бейдж направления перевода -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DE → RU"
+            android:textColor="#38BDF8"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_badge_lang"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Исходная немецкая речь -->
         <TextView
             android:id="@+id/tv_german"
             android:layout_width="0dp"
@@ -41,20 +64,22 @@
             android:layout_weight="1"
             android:textColor="@color/text_german"
             android:textSize="13sp"
+            android:textStyle="italic"
             android:maxLines="2"
             android:ellipsize="end"
-            android:text="Warte auf Sprache..." />
+            android:text="Warte auf deutsche Sprache..." />
 
-        <!-- Кнопка смены размера шрифта -->
+        <!-- Кнопка размера шрифта (Pill) -->
         <TextView
             android:id="@+id/btn_font_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Аа"
             android:textColor="@color/accent_yellow"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:padding="6dp"
+            android:background="@drawable/bg_chip_pill"
+            android:layout_marginStart="4dp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -64,17 +89,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="—"
-            android:textColor="@color/accent_yellow"
-            android:textSize="18sp"
+            android:textColor="@color/text_german"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:padding="6dp"
+            android:background="@drawable/bg_chip_pill"
             android:layout_marginStart="4dp"
             android:clickable="true"
             android:focusable="true" />
 
     </LinearLayout>
 
-    <!-- Основной блок перевода на русском языке (крупный, яркий) -->
+    <!-- Основной блок синхронного перевода на русский (крупный, яркий, легко читаемый на бегу) -->
     <TextView
         android:id="@+id/tv_russian"
         android:layout_width="match_parent"
@@ -82,12 +107,17 @@
         android:textColor="@color/text_russian"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:paddingTop="6dp"
-        android:paddingBottom="8dp"
+        android:lineSpacingMultiplier="1.2"
+        android:paddingTop="8dp"
+        android:paddingBottom="10dp"
+        android:shadowColor="#99000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="3"
         android:maxLines="4"
         android:text="Слушаю немецкую речь собеседника..." />
 
-    <!-- Нижняя панель быстрых действий: Langsamer + Moment + Ja/Nein -->
+    <!-- Нижняя панель быстрых действий с тактильными кнопками -->
     <LinearLayout
         android:id="@+id/panel_actions"
         android:layout_width="match_parent"
@@ -95,7 +125,7 @@
         android:orientation="horizontal"
         android:gravity="end">
 
-        <!-- Кнопка фразы "Да, понятно" (Ja, genau) -->
+        <!-- Кнопка фразы "Да, точно" (Ja, genau) -->
         <TextView
             android:id="@+id/btn_ja"
             android:layout_width="wrap_content"
@@ -103,11 +133,12 @@
             android:text="✓ Ja"
             android:textColor="@color/accent_yellow"
             android:textSize="12sp"
-            android:padding="6dp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_chip_pill"
             android:clickable="true"
             android:focusable="true" />
 
-        <!-- Кнопка экстренной фразы "Einen Moment" -->
+        <!-- Кнопка фразы "Einen Moment" -->
         <TextView
             android:id="@+id/btn_moment"
             android:layout_width="wrap_content"
@@ -115,12 +146,13 @@
             android:text="⏸ Moment"
             android:textColor="@color/accent_yellow"
             android:textSize="12sp"
-            android:padding="6dp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_chip_pill"
             android:layout_marginStart="6dp"
             android:clickable="true"
             android:focusable="true" />
 
-        <!-- Кнопка экстренной фразы "Langsamer bitte" -->
+        <!-- Кнопка фразы "Langsamer bitte" -->
         <TextView
             android:id="@+id/btn_langsamer"
             android:layout_width="wrap_content"
@@ -128,7 +160,8 @@
             android:text="🔊 Langsamer"
             android:textColor="@color/accent_yellow"
             android:textSize="12sp"
-            android:padding="6dp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_chip_pill"
             android:layout_marginStart="6dp"
             android:clickable="true"
             android:focusable="true" />

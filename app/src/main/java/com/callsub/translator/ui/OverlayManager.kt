@@ -88,28 +88,66 @@ class OverlayManager(
     }
 
     private fun setupControls(view: View) {
-        view.findViewById<View>(R.id.btn_font_size)?.setOnClickListener {
-            fontIndex = (fontIndex + 1) % fontSizes.size
-            tvRussian?.textSize = fontSizes[fontIndex]
+        val btnFontSize = view.findViewById<View>(R.id.btn_font_size)
+        val btnMinimize = view.findViewById<View>(R.id.btn_minimize)
+        val btnLangsamer = view.findViewById<View>(R.id.btn_langsamer)
+        val btnMoment = view.findViewById<View>(R.id.btn_moment)
+        val btnJa = view.findViewById<View>(R.id.btn_ja)
+
+        btnFontSize?.let { btn ->
+            attachTactileSpringTouch(btn) {
+                fontIndex = (fontIndex + 1) % fontSizes.size
+                tvRussian?.textSize = fontSizes[fontIndex]
+            }
         }
 
-        view.findViewById<View>(R.id.btn_minimize)?.setOnClickListener {
-            val russianTv = tvRussian ?: return@setOnClickListener
-            val isShown = russianTv.visibility == View.VISIBLE
-            russianTv.visibility = if (isShown) View.GONE else View.VISIBLE
-            tvGerman?.visibility = if (isShown) View.GONE else View.VISIBLE
+        btnMinimize?.let { btn ->
+            attachTactileSpringTouch(btn) {
+                val russianTv = tvRussian ?: return@attachTactileSpringTouch
+                val isShown = russianTv.visibility == View.VISIBLE
+                russianTv.visibility = if (isShown) View.GONE else View.VISIBLE
+                tvGerman?.visibility = if (isShown) View.GONE else View.VISIBLE
+                (btn as? TextView)?.text = if (isShown) "＋" else "—"
+            }
         }
 
-        view.findViewById<View>(R.id.btn_langsamer)?.setOnClickListener {
-            phrasesPlayer?.speakSpeakSlower()
+        btnLangsamer?.let { btn ->
+            attachTactileSpringTouch(btn) {
+                phrasesPlayer?.speakSpeakSlower()
+            }
         }
 
-        view.findViewById<View>(R.id.btn_moment)?.setOnClickListener {
-            phrasesPlayer?.speakOneMoment()
+        btnMoment?.let { btn ->
+            attachTactileSpringTouch(btn) {
+                phrasesPlayer?.speakOneMoment()
+            }
         }
 
-        view.findViewById<View>(R.id.btn_ja)?.setOnClickListener {
-            phrasesPlayer?.speakJaGenau()
+        btnJa?.let { btn ->
+            attachTactileSpringTouch(btn) {
+                phrasesPlayer?.speakJaGenau()
+            }
+        }
+    }
+
+    private fun attachTactileSpringTouch(view: View, action: () -> Unit) {
+        view.setOnClickListener {
+            try {
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            } catch (_: Exception) {}
+            view.animate()
+                .scaleX(0.88f)
+                .scaleY(0.88f)
+                .setDuration(70)
+                .withEndAction {
+                    view.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .setDuration(120)
+                        .start()
+                    action()
+                }
+                .start()
         }
     }
 

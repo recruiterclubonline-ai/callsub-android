@@ -4,13 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#FFFFFF">
+    android:background="#0B0F17">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="28dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="36dp"
+        android:paddingBottom="28dp"
         android:gravity="center_horizontal">
 
         <TextView
@@ -19,49 +22,50 @@
             android:text="CallSub"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginTop="20dp" />
+            android:textColor="#F8FAFC" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ваш личный переводчик звонков в Германии"
+            android:text="Синхронный ИИ-переводчик звонков в Германии"
             android:textSize="14sp"
-            android:textColor="#6B7280"
+            android:textColor="#38BDF8"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="28dp" />
+            android:layout_marginBottom="24dp" />
 
         <!-- Шаг 1 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E5E7EB"
+            app:strokeColor="#1E293B"
+            app:cardBackgroundColor="#131B2A"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1. Как это работает"
                     android:textStyle="bold"
-                    android:textColor="#111827"
+                    android:textColor="#F8FAFC"
                     android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Когда вам звонят (или вы звоните), включите ГРОМКУЮ СВЯЗЬ. Микрофон захватывает голос немецкого собеседника, а Google AI мгновенно переводит его в субтитры на экране."
-                    android:textColor="#4B5563"
+                    android:text="Во время входящего или исходящего звонка включите ГРОМКУЮ СВЯЗЬ (Speakerphone). Микрофон захватывает немецкую речь собеседника, а нейросеть Google Gemini Live моментально выводит русский перевод прямо поверх экрана звонилки."
+                    android:textColor="#94A3B8"
                     android:textSize="13sp"
-                    android:layout_marginTop="6dp" />
+                    android:lineSpacingMultiplier="1.2"
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -69,40 +73,46 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E5E7EB"
+            app:strokeColor="#1E293B"
+            app:cardBackgroundColor="#131B2A"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2. Необходимые разрешения"
                     android:textStyle="bold"
-                    android:textColor="#111827"
+                    android:textColor="#F8FAFC"
                     android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="• Микрофон (для захвата речи)\n• Телефон (чтобы запускаться во время звонка)\n• Поверх других окон (чтобы рисовать субтитры)"
-                    android:textColor="#4B5563"
+                    android:text="• Микрофон — захват речи собеседника\n• Телефон — автозапуск при ответе на звонок\n• Окно поверх всех — плавающий HUD с субтитрами"
+                    android:textColor="#94A3B8"
                     android:textSize="13sp"
-                    android:layout_marginTop="6dp" />
+                    android:lineSpacingMultiplier="1.3"
+                    android:layout_marginTop="8dp" />
 
                 <Button
                     android:id="@+id/btn_grant_permissions"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Выдать разрешения"
-                    android:layout_marginTop="10dp" />
+                    android:textColor="#FFFFFF"
+                    app:backgroundTint="#0284C7"
+                    app:cornerRadius="12dp"
+                    android:layout_marginTop="12dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -110,42 +120,49 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E5E7EB"
+            app:strokeColor="#1E293B"
+            app:cardBackgroundColor="#131B2A"
             android:layout_marginBottom="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3. Бесплатный ключ Gemini API"
+                    android:text="3. Персональный ИИ-ключ"
                     android:textStyle="bold"
-                    android:textColor="#111827"
+                    android:textColor="#F8FAFC"
                     android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ключ создается за 1 минуту на сайте aistudio.google.com без банковской карты. Его нужно вставить один раз на главном экране."
-                    android:textColor="#4B5563"
+                    android:text="Ваш официальный ключ Google AI Studio уже интегрирован в эту сборку и активирован по умолчанию. Вы можете сразу приступать к звонкам."
+                    android:textColor="#94A3B8"
                     android:textSize="13sp"
-                    android:layout_marginTop="6dp" />
+                    android:lineSpacingMultiplier="1.2"
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <Button
             android:id="@+id/btn_finish_onboarding"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Перейти к настройкам"
-            android:textSize="16sp"
+            android:text="Перейти к приложению →"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:backgroundTint="#4F46E5"
+            app:cornerRadius="12dp"
             android:padding="12dp" />
 
     </LinearLayout>

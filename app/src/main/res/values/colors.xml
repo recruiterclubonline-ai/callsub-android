@@ -1,17 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- Base Primary / Secondary Brand Tokens -->
+    <color name="purple_200">#A5B4FC</color>
+    <color name="purple_500">#6366F1</color>
+    <color name="purple_700">#4F46E5</color>
+    <color name="teal_200">#38BDF8</color>
+    <color name="teal_700">#0284C7</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="status_green">#FF4CAF50</color>
-    <color name="status_yellow">#FFFFEB3B</color>
-    <color name="status_red">#FFF44336</color>
-    <color name="overlay_bg">#CC121212</color>
-    <color name="text_german">#FFAAAAAA</color>
-    <color name="text_russian">#FFFFFFFF</color>
-    <color name="accent_yellow">#FFFFD600</color>
+
+    <!-- Status Indicators -->
+    <color name="status_green">#10B981</color>
+    <color name="status_yellow">#F59E0B</color>
+    <color name="status_red">#EF4444</color>
+
+    <!-- Overlay HUD Luxury Tokens -->
+    <color name="overlay_bg">#E60B0F17</color>
+    <color name="overlay_stroke">#3338BDF8</color>
+    <color name="overlay_handle">#64748B</color>
+    <color name="text_german">#94A3B8</color>
+    <color name="text_russian">#FFFFFF</color>
+    <color name="accent_yellow">#FACC15</color>
+    <color name="chip_bg">#243046</color>
+    <color name="chip_stroke">#38BDF8</color>
+
+    <!-- Premium Dark / Modern UI Surface Tokens -->
+    <color name="screen_bg">#0B0F17</color>
+    <color name="card_bg">#131B2A</color>
+    <color name="card_stroke">#1E293B</color>
+    <color name="primary_accent">#6366F1</color>
+    <color name="secondary_accent">#38BDF8</color>
+    <color name="text_title">#F8FAFC</color>
+    <color name="text_sub">#94A3B8</color>
+    <color name="text_caption">#64748B</color>
 </resources>
