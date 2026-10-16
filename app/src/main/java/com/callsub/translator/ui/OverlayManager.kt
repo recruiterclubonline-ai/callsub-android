@@ -3,6 +3,7 @@ package com.callsub.translator.ui
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.core.content.ContextCompat
