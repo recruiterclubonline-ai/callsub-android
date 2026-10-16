@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">CallSub DE-RU</string>
+    <string name="title_settings">Настройки CallSub</string>
+    <string name="subtitle_settings">Синхронный переводчик звонков с немецкого на русский</string>
+    <string name="hint_api_key">API-ключ Google AI Studio (AIzaSy...)</string>
+    <string name="btn_save_key">Сохранить API-ключ</string>
+    <string name="btn_start_test">Запустить перевод (Тест)</string>
+    <string name="btn_stop_test">Остановить перевод</string>
+    <string name="status_key_not_saved">Ключ не сохранён. Получите бесплатный ключ на aistudio.google.com</string>
+    <string name="status_key_saved">API-ключ сохранён и готов к работе</string>
+    <string name="notification_channel_name">Синхронный перевод звонка</string>
+    <string name="notification_channel_desc">Показывает статус активного перевода немецкой речи во время звонка</string>
+    <string name="notification_title">CallSub: Перевод активен</string>
+    <string name="notification_text">Синхронный перевод речи DE → RU включён</string>
+</resources>

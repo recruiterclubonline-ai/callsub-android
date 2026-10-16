@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overlay_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_overlay_rounded"
+    android:padding="14dp"
+    android:layout_margin="8dp"
+    android:elevation="12dp">
+
+    <!-- Верхняя панель: Индикатор + Немецкий оригинал + Кнопка сворачивания -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Цветной кружок статуса: зеленый/желтый/красный -->
+        <View
+            android:id="@+id/status_indicator"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@drawable/circle_green"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Исходная речь на немецком языке -->
+        <TextView
+            android:id="@+id/tv_german"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_german"
+            android:textSize="13sp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="Warte auf Sprache..." />
+
+        <!-- Кнопка смены размера шрифта -->
+        <TextView
+            android:id="@+id/btn_font_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Аа"
+            android:textColor="@color/accent_yellow"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:padding="6dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Кнопка свернуть/развернуть -->
+        <TextView
+            android:id="@+id/btn_minimize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—"
+            android:textColor="@color/accent_yellow"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:padding="6dp"
+            android:layout_marginStart="4dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- Основной блок перевода на русском языке (крупный, яркий) -->
+    <TextView
+        android:id="@+id/tv_russian"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_russian"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:paddingTop="6dp"
+        android:paddingBottom="8dp"
+        android:maxLines="4"
+        android:text="Слушаю немецкую речь собеседника..." />
+
+    <!-- Нижняя панель быстрых действий: Langsamer + Moment -->
+    <LinearLayout
+        android:id="@+id/panel_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <!-- Кнопка экстренной фразы "Einen Moment" -->
+        <TextView
+            android:id="@+id/btn_moment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏸ Moment"
+            android:textColor="@color/accent_yellow"
+            android:textSize="12sp"
+            android:padding="6dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Кнопка экстренной фразы "Langsamer bitte" -->
+        <TextView
+            android:id="@+id/btn_langsamer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔊 Langsamer"
+            android:textColor="@color/accent_yellow"
+            android:textSize="12sp"
+            android:padding="6dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+</LinearLayout>
