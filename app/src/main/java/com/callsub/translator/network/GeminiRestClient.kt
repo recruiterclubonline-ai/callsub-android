@@ -35,7 +35,7 @@ class GeminiRestClient(private val apiKey: String) {
                 add("contents", gson.toJsonTree(listOf(
                     mapOf(
                         "parts" to listOf(
-                            mapOf("text" to "Переведи немецкую речь из этого аудио на русский язык кратко в виде субтитра:"),
+                            mapOf("text" to "Ты — синхронный переводчик. Моментально переведи немецкую речь из аудио на русский язык кратко и ёмко в виде субтитра. Выводи ТОЛЬКО русский перевод:"),
                             mapOf(
                                 "inlineData" to mapOf(
                                     "mimeType" to "audio/wav",
@@ -46,7 +46,7 @@ class GeminiRestClient(private val apiKey: String) {
                     )
                 )))
                 add("generationConfig", JsonObject().apply {
-                    addProperty("temperature", 0.1)
+                    addProperty("temperature", 0.0)
                 })
             }
 

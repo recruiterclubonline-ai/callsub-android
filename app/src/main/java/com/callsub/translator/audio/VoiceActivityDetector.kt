@@ -65,10 +65,10 @@ class VoiceActivityDetector(
     }
 
     companion object {
-        private const val RMS_SPEECH_THRESHOLD = 220.0
-        private const val SILENCE_GAP_THRESHOLD_MS = 400
-        private const val MAX_PHRASE_DURATION_MS = 2500
-        private const val MIN_PHRASE_DURATION_MS = 500
+        private const val RMS_SPEECH_THRESHOLD = 110.0
+        private const val SILENCE_GAP_THRESHOLD_MS = 300
+        private const val MAX_PHRASE_DURATION_MS = 1800
+        private const val MIN_PHRASE_DURATION_MS = 350
         private const val CHUNK_DURATION_MS = 100
     }
 }
