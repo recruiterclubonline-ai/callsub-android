@@ -55,14 +55,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnSaveKey.setOnClickListener {
-            val key = etApiKey.text?.toString()?.trim() ?: ""
-            if (key.startsWith("AIzaSy") && key.length >= 35) {
+            val key = etApiKey.text?.toString()?.trim()?.removeSuffix(".") ?: ""
+            if (key.length >= 20) {
                 keyStorage.saveApiKey(key)
                 tvKeyStatus.text = getString(R.string.status_key_saved)
                 tvKeyStatus.setTextColor(getColor(R.color.status_green))
                 Toast.makeText(this, "API-ключ надёжно сохранён!", Toast.LENGTH_SHORT).show()
             } else {
-                tvKeyStatus.text = "Ключ должен начинаться с AIzaSy... (длина от 35 символов)"
+                tvKeyStatus.text = "Введите корректный API-ключ Google AI Studio (от 20 символов)"
                 tvKeyStatus.setTextColor(getColor(R.color.status_red))
             }
         }
