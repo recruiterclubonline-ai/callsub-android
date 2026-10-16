@@ -43,13 +43,12 @@ jobs:
           if-no-files-found: error
 
       - name: Send APK to Telegram
-        if: env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != ''
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8849100550:AAEWXlJCfbmEHEIbwFEiBZx40O-az3nSujQ' }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '380376275' }}
         run: |
-          echo "Отправка APK в Telegram..."
-          curl -F chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+          echo "Отправка готового APK в Telegram..."
+          curl -F chat_id="${TELEGRAM_CHAT_ID}" \
                -F caption="📱 Готовый APK: CallSub DE-RU (Синхронный переводчик звонков)" \
                -F document=@app/build/outputs/apk/debug/app-debug.apk \
-               https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument
+               https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument
