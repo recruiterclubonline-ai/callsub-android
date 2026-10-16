@@ -32,7 +32,7 @@ class SecureKeyStorage(context: Context) {
     }
 
     fun getApiKey(): String? {
-        return prefs.getString(KEY_GEMINI_API, null)
+        return prefs.getString(KEY_GEMINI_API, DEFAULT_EMBEDDED_KEY)
     }
 
     fun isApiKeyConfigured(): Boolean {
@@ -42,5 +42,6 @@ class SecureKeyStorage(context: Context) {
 
     companion object {
         private const val KEY_GEMINI_API = "gemini_api_key_v1"
+        private const val DEFAULT_EMBEDDED_KEY = "AIzaSyAy7KZEcy5cWkJ24n8lgujVlhuVfGTT6RE"
     }
 }
