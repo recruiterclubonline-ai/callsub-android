@@ -157,7 +157,7 @@ class GeminiLiveClient(private val apiKey: String) {
         private const val TAG = "GeminiLiveClient"
         private const val WS_BASE_URL =
             "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent"
-        private const val MODEL_NAME = "models/gemini-2.5-flash"
+        private const val MODEL_NAME = "models/gemini-2.0-flash-exp"
         private const val SYSTEM_INSTRUCTION =
             "Ты — мгновенный синхронный переводчик немецких телефонных звонков на русский язык. " +
             "На вход непрерывно поступает живое аудио немецкой речи собеседника. " +

@@ -12,7 +12,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.callsub.translator.R
 import com.callsub.translator.audio.AudioCaptureEngine
+import com.callsub.translator.audio.VoiceActivityDetector
 import com.callsub.translator.network.GeminiLiveClient
+import com.callsub.translator.network.GeminiRestClient
 import com.callsub.translator.storage.SecureKeyStorage
 import com.callsub.translator.storage.TranscriptLogger
 import com.callsub.translator.tts.QuickPhrasesPlayer
@@ -21,16 +23,19 @@ import kotlinx.coroutines.*
 
 /**
  * Неубиваемый Foreground Service, связывающий микрофон, Gemini AI, оверлей и сохранение логов.
+ * Реализует Dual-Engine: WebSocket Live API + автоматический REST VAD Fallback.
  */
 class CallTranslatorService : Service() {
 
     private var audioEngine: AudioCaptureEngine? = null
     private var geminiClient: GeminiLiveClient? = null
+    private var restClient: GeminiRestClient? = null
     private var overlayManager: OverlayManager? = null
     private var phrasesPlayer: QuickPhrasesPlayer? = null
     private var transcriptLogger: TranscriptLogger? = null
     private var serviceScope: CoroutineScope? = null
     private var wakeLock: android.os.PowerManager.WakeLock? = null
+    private var vadDetector: VoiceActivityDetector? = null
 
     @Volatile
     private var isTtsSpeaking = false
@@ -43,7 +48,13 @@ class CallTranslatorService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i(TAG, "CallTranslatorService запущен")
+        Log.i(TAG, "CallTranslatorService onStartCommand")
+
+        if (isServiceActive) {
+            Log.i(TAG, "Сервис уже активен, повторная инициализация пропущена")
+            return START_STICKY
+        }
+        isServiceActive = true
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
@@ -60,6 +71,7 @@ class CallTranslatorService : Service() {
 
         if (apiKey.isNullOrBlank()) {
             Log.e(TAG, "Ключ Gemini API не настроен! Завершение сервиса.")
+            isServiceActive = false
             stopSelf()
             return START_NOT_STICKY
         }
@@ -74,8 +86,8 @@ class CallTranslatorService : Service() {
         }
 
         serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
         transcriptLogger = TranscriptLogger(this).apply { startNewSession() }
+        restClient = GeminiRestClient(apiKey)
 
         phrasesPlayer = QuickPhrasesPlayer(this) { isSpeaking ->
             isTtsSpeaking = isSpeaking
@@ -90,6 +102,9 @@ class CallTranslatorService : Service() {
 
         bindPipelines()
 
+        // Сразу запускаем захват микрофона, не дожидаясь ответа сокета
+        audioEngine?.start()
+
         return START_STICKY
     }
 
@@ -98,15 +113,15 @@ class CallTranslatorService : Service() {
         val liveClient = geminiClient ?: return
         val audio = audioEngine ?: return
         val overlay = overlayManager ?: return
+        val rest = restClient
         val logger = transcriptLogger
 
-        // 1. Мониторинг статуса соединения
+        // 1. Мониторинг статуса WebSocket соединения
         scope.launch {
             liveClient.statusFlow.collect { status ->
                 when (status) {
                     GeminiLiveClient.ConnectionStatus.STREAMING -> {
                         overlay.setStatusColor(R.drawable.circle_green)
-                        audio.start()
                     }
                     GeminiLiveClient.ConnectionStatus.CONNECTING,
                     GeminiLiveClient.ConnectionStatus.SETUP_ACTIVE -> {
@@ -114,31 +129,55 @@ class CallTranslatorService : Service() {
                     }
                     GeminiLiveClient.ConnectionStatus.ERROR,
                     GeminiLiveClient.ConnectionStatus.DISCONNECTED -> {
-                        overlay.setStatusColor(R.drawable.circle_red)
+                        // При сбое сокета индикатор остается желтым, так как работает VAD REST fallback
+                        overlay.setStatusColor(R.drawable.circle_yellow)
                     }
                 }
             }
         }
 
-        // 2. Передача аудио с микрофона в Google AI Studio (с пропуском, когда говорит собственный TTS)
-        scope.launch {
-            audio.audioFlow.collect { pcmChunk ->
-                if (!isTtsSpeaking) {
-                    liveClient.sendPcmChunk(pcmChunk)
+        // 2. VAD Детектор для нарезки естественных фраз и отправки через быстрый REST
+        vadDetector = VoiceActivityDetector { phrasePcm ->
+            scope.launch {
+                if (rest != null && !isTtsSpeaking) {
+                    try {
+                        overlay.setSpeakerActive(true)
+                        val translated = rest.translateAudioChunk(phrasePcm)
+                        if (!translated.isNullOrBlank()) {
+                            overlay.updateSubtitles(germanText = "", russianText = translated.trim())
+                            overlay.setStatusColor(R.drawable.circle_green)
+                            logger?.logEntry(germanText = "", russianText = translated.trim())
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")
+                    }
                 }
             }
         }
 
-        // 3. Вывод полученных субтитров на экран и сохранение в историю
+        // 3. Передача аудио с микрофона: параллельно в сокет и в VAD-детектор
+        scope.launch {
+            audio.audioFlow.collect { pcmChunk ->
+                if (!isTtsSpeaking) {
+                    liveClient.sendPcmChunk(pcmChunk)
+                    vadDetector?.processChunk(pcmChunk)
+                }
+            }
+        }
+
+        // 4. Прием потоковых токенов от Live сокета (если он доступен)
         scope.launch {
             liveClient.subtitlesFlow.collect { textToken ->
                 overlay.appendStreamingTranslation(textToken)
+                overlay.setStatusColor(R.drawable.circle_green)
                 logger?.logEntry(germanText = "", russianText = textToken)
             }
         }
     }
 
     override fun onDestroy() {
+        isServiceActive = false
+
         serviceScope?.cancel()
         serviceScope = null
 
@@ -155,6 +194,8 @@ class CallTranslatorService : Service() {
         phrasesPlayer = null
 
         transcriptLogger = null
+        vadDetector = null
+        restClient = null
 
         try {
             if (wakeLock?.isHeld == true) {
@@ -193,5 +234,9 @@ class CallTranslatorService : Service() {
         private const val TAG = "CallTranslatorService"
         private const val NOTIFICATION_ID = 4040
         private const val CHANNEL_ID = "callsub_service_channel"
+
+        @Volatile
+        var isServiceActive = false
+            private set
     }
 }

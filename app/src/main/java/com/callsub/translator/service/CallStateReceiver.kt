@@ -28,11 +28,13 @@ class CallStateReceiver : BroadcastReceiver() {
         when (stateStr) {
             TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                 Log.i(TAG, "Трубка снята (OFFHOOK) -> Запуск сервиса перевода")
-                val serviceIntent = Intent(context, CallTranslatorService::class.java)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(serviceIntent)
-                } else {
-                    context.startService(serviceIntent)
+                if (!CallTranslatorService.isServiceActive) {
+                    val serviceIntent = Intent(context, CallTranslatorService::class.java)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        context.startService(serviceIntent)
+                    }
                 }
             }
             TelephonyManager.EXTRA_STATE_IDLE -> {

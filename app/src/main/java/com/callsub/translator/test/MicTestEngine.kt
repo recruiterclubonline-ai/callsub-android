@@ -34,8 +34,14 @@ class MicTestEngine(private val context: Context) {
             return@withContext TestResult.ApiKeyMissing
         }
 
+        suspend fun updateProgress(msg: String) {
+            withContext(Dispatchers.Main) {
+                onProgress(msg)
+            }
+        }
+
         try {
-            onProgress("Проверка микрофона...")
+            updateProgress("Проверка микрофона...")
             val source = AudioSourceProbe.findWorkingSource()
             val minBufferSize = AudioRecord.getMinBufferSize(
                 AudioCaptureEngine.SAMPLE_RATE,
@@ -57,7 +63,7 @@ class MicTestEngine(private val context: Context) {
             }
 
             recorder.startRecording()
-            onProgress("Говорите что-нибудь по-немецки (например 'Guten Tag')...")
+            updateProgress("Говорите что-нибудь по-немецки (например 'Guten Tag')...")
 
             val totalSamples = AudioCaptureEngine.SAMPLE_RATE * TEST_DURATION_SECONDS
             val buffer = ShortArray(totalSamples)
@@ -83,7 +89,7 @@ class MicTestEngine(private val context: Context) {
                 return@withContext TestResult.LowSignal(rms)
             }
 
-            onProgress("Отправка тестового фрагмента в Gemini AI...")
+            updateProgress("Отправка тестового фрагмента в Gemini AI...")
             val byteBuffer = ByteArray(readSamples * 2)
             for (i in 0 until readSamples) {
                 val s = buffer[i].toInt()
@@ -95,7 +101,7 @@ class MicTestEngine(private val context: Context) {
             val translatedText = restClient.translateAudioChunk(byteBuffer)
 
             if (!translatedText.isNullOrBlank()) {
-                onProgress("Перевод получен: $translatedText")
+                updateProgress("Перевод получен: $translatedText")
                 return@withContext TestResult.Success
             } else {
                 return@withContext TestResult.ApiError("Ответ от модели пуст или не получен")

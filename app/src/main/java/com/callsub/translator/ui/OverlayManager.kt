@@ -28,39 +28,53 @@ class OverlayManager(
     private var fontIndex = 1
 
     fun show() {
-        if (overlayView != null) return
+        synchronized(OverlayManager::class.java) {
+            windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-        windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val inflater = LayoutInflater.from(context)
-        val view = inflater.inflate(R.layout.overlay_subtitles, null)
-        overlayView = view
+            // Очищаем любое ранее открытое окно
+            activeOverlayView?.let { oldView ->
+                try {
+                    windowManager?.removeView(oldView)
+                } catch (_: Exception) {}
+            }
+            activeOverlayView = null
 
-        tvGerman = view.findViewById(R.id.tv_german)
-        tvRussian = view.findViewById(R.id.tv_russian)
-        tvSpeakerIcon = view.findViewById(R.id.tv_speaker_icon)
-        statusIndicator = view.findViewById(R.id.status_indicator)
+            val inflater = LayoutInflater.from(context)
+            val view = inflater.inflate(R.layout.overlay_subtitles, null)
+            overlayView = view
+            activeOverlayView = view
 
-        val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            else
-                @Suppress("DEPRECATION")
-                WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            y = 180
+            tvGerman = view.findViewById(R.id.tv_german)
+            tvRussian = view.findViewById(R.id.tv_russian)
+            tvSpeakerIcon = view.findViewById(R.id.tv_speaker_icon)
+            statusIndicator = view.findViewById(R.id.status_indicator)
+
+            val layoutParams = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                else
+                    @Suppress("DEPRECATION")
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                y = 180
+            }
+
+            setupDragAndDrop(view, layoutParams)
+            setupControls(view)
+
+            try {
+                windowManager?.addView(view, layoutParams)
+            } catch (e: Exception) {
+                Log.e("OverlayManager", "Ошибка добавления оверлея: ${e.message}")
+            }
         }
-
-        setupDragAndDrop(view, layoutParams)
-        setupControls(view)
-
-        windowManager?.addView(view, layoutParams)
     }
 
     private fun setupDragAndDrop(view: View, params: WindowManager.LayoutParams) {
@@ -128,6 +142,17 @@ class OverlayManager(
                 phrasesPlayer?.speakJaGenau()
             }
         }
+
+        val btnClose = view.findViewById<View>(R.id.btn_close)
+        btnClose?.let { btn ->
+            attachTactileSpringTouch(btn) {
+                hide()
+                try {
+                    val serviceIntent = android.content.Intent(context, com.callsub.translator.service.CallTranslatorService::class.java)
+                    context.stopService(serviceIntent)
+                } catch (_: Exception) {}
+            }
+        }
     }
 
     private fun attachTactileSpringTouch(view: View, action: () -> Unit) {
@@ -182,15 +207,24 @@ class OverlayManager(
     }
 
     fun hide() {
-        overlayView?.let {
-            try {
-                windowManager?.removeView(it)
-            } catch (_: Exception) {}
+        synchronized(OverlayManager::class.java) {
+            val targetView = overlayView ?: activeOverlayView
+            targetView?.let {
+                try {
+                    windowManager?.removeView(it)
+                } catch (_: Exception) {}
+            }
+            activeOverlayView = null
+            overlayView = null
+            tvGerman = null
+            tvRussian = null
+            tvSpeakerIcon = null
+            statusIndicator = null
         }
-        overlayView = null
-        tvGerman = null
-        tvRussian = null
-        tvSpeakerIcon = null
-        statusIndicator = null
+    }
+
+    companion object {
+        @Volatile
+        private var activeOverlayView: View? = null
     }
 }

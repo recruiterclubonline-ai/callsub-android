@@ -86,7 +86,9 @@ class MainActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 val result = tester.runMicAndApiTest { progressMsg ->
-                    tvMicTestStatus.text = progressMsg
+                    runOnUiThread {
+                        tvMicTestStatus.text = progressMsg
+                    }
                 }
 
                 btnRunMicTest.isEnabled = true
@@ -134,24 +136,31 @@ class MainActivity : AppCompatActivity() {
 
             val serviceIntent = Intent(this, CallTranslatorService::class.java)
 
-            if (!isServiceRunning) {
+            if (!CallTranslatorService.isServiceActive) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(serviceIntent)
                 } else {
                     startService(serviceIntent)
                 }
-                isServiceRunning = true
                 btnToggle.text = getString(R.string.btn_stop_test)
                 Toast.makeText(this, "Перевод запущен! Включите немецкое аудио на динамике.", Toast.LENGTH_LONG).show()
             } else {
                 stopService(serviceIntent)
-                isServiceRunning = false
                 btnToggle.text = getString(R.string.btn_start_test)
                 Toast.makeText(this, "Перевод остановлен.", Toast.LENGTH_SHORT).show()
             }
         }
 
         checkInitialPermissions()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        findViewById<Button>(R.id.btn_toggle_service)?.text =
+            if (CallTranslatorService.isServiceActive)
+                getString(R.string.btn_stop_test)
+            else
+                getString(R.string.btn_start_test)
     }
 
     private fun checkInitialPermissions() {
