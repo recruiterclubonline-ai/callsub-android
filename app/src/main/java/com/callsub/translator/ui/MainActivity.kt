@@ -186,13 +186,15 @@ class MainActivity : AppCompatActivity() {
             tvAccStatus.setTextColor(getColor(R.color.status_green))
             btnEnableAcc.text = "✅ Служба включена"
             btnEnableAcc.isEnabled = false
-            btnEnableAcc.backgroundTintList = getColorStateList(R.color.status_green)
+            btnEnableAcc.backgroundTintList = null
+            btnEnableAcc.setBackgroundResource(R.drawable.bg_btn_gradient_emerald)
         } else {
             tvAccStatus.text = "⚠️ Служба выключена. Включите CallSub в «Специальных возможностях», чтобы Android не блокировал микрофон во время звонка."
             tvAccStatus.setTextColor(getColor(R.color.accent_yellow))
             btnEnableAcc.text = "⚙️ Включить в настройках"
             btnEnableAcc.isEnabled = true
-            btnEnableAcc.backgroundTintList = getColorStateList(R.color.accent_yellow)
+            btnEnableAcc.backgroundTintList = null
+            btnEnableAcc.setBackgroundResource(R.drawable.bg_btn_gradient_primary)
         }
     }
 

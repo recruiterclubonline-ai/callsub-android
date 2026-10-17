@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#0B0F17">
+    android:background="#080C14">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,17 +12,33 @@
         android:orientation="vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="36dp"
-        android:paddingBottom="28dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="40dp"
         android:gravity="center_horizontal">
+
+        <!-- Apple Glass App Badge Icon -->
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_icon_bubble_blue"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🌐"
+                android:textSize="32sp" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="CallSub"
-            android:textSize="32sp"
+            android:textSize="34sp"
             android:textStyle="bold"
-            android:textColor="#F8FAFC" />
+            android:textColor="#F8FAFC"
+            android:letterSpacing="-0.03" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -31,41 +47,65 @@
             android:textSize="14sp"
             android:textColor="#38BDF8"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="28dp" />
 
         <!-- Шаг 1 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
             app:strokeWidth="1dp"
             app:strokeColor="#1E293B"
-            app:cardBackgroundColor="#131B2A"
+            app:cardBackgroundColor="#0F172A"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_icon_bubble_blue"
+                        android:layout_marginEnd="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Как это работает"
+                        android:textStyle="bold"
+                        android:textColor="#F8FAFC"
+                        android:textSize="16sp" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1. Как это работает"
-                    android:textStyle="bold"
-                    android:textColor="#F8FAFC"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Во время входящего или исходящего звонка включите ГРОМКУЮ СВЯЗЬ (Speakerphone). Микрофон захватывает немецкую речь собеседника, а нейросеть Google Gemini Live моментально выводит русский перевод прямо поверх экрана звонилки."
+                    android:text="Во время входящего или исходящего звонка включите ГРОМКУЮ СВЯЗЬ. CallSub перехватывает немецкую речь и выводит живые русские субтитры поверх звонилки."
                     android:textColor="#94A3B8"
                     android:textSize="13sp"
-                    android:lineSpacingMultiplier="1.2"
-                    android:layout_marginTop="8dp" />
+                    android:lineSpacingMultiplier="1.25"
+                    android:layout_marginTop="6dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -73,46 +113,70 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
             app:strokeWidth="1dp"
             app:strokeColor="#1E293B"
-            app:cardBackgroundColor="#131B2A"
+            app:cardBackgroundColor="#0F172A"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_icon_bubble_indigo"
+                        android:layout_marginEnd="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="2"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Разрешения системы"
+                        android:textStyle="bold"
+                        android:textColor="#F8FAFC"
+                        android:textSize="16sp" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2. Необходимые разрешения"
-                    android:textStyle="bold"
-                    android:textColor="#F8FAFC"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="• Микрофон — захват речи собеседника\n• Телефон — автозапуск при ответе на звонок\n• Окно поверх всех — плавающий HUD с субтитрами"
+                    android:text="• Микрофон — захват немецкой речи\n• Телефон — автозапуск при ответе\n• Окно поверх всех — плавающий HUD субтитров"
                     android:textColor="#94A3B8"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.3"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="6dp" />
 
                 <Button
                     android:id="@+id/btn_grant_permissions"
-                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:text="Выдать разрешения"
                     android:textColor="#FFFFFF"
-                    app:backgroundTint="#0284C7"
-                    app:cornerRadius="12dp"
-                    android:layout_marginTop="12dp" />
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:background="@drawable/bg_btn_secondary_glass"
+                    android:layout_marginTop="14dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -120,50 +184,71 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
             app:strokeWidth="1dp"
             app:strokeColor="#1E293B"
-            app:cardBackgroundColor="#131B2A"
-            android:layout_marginBottom="24dp">
+            app:cardBackgroundColor="#0F172A"
+            android:layout_marginBottom="28dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_icon_bubble_emerald"
+                        android:layout_marginEnd="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="3"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ИИ-модель готова"
+                        android:textStyle="bold"
+                        android:textColor="#F8FAFC"
+                        android:textSize="16sp" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3. Персональный ИИ-ключ"
-                    android:textStyle="bold"
-                    android:textColor="#F8FAFC"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ваш официальный ключ Google AI Studio уже интегрирован в эту сборку и активирован по умолчанию. Вы можете сразу приступать к звонкам."
+                    android:text="Официальный ключ Google AI Studio уже предустановлен. Вы можете сразу приступать к звонкам."
                     android:textColor="#94A3B8"
                     android:textSize="13sp"
-                    android:lineSpacingMultiplier="1.2"
-                    android:layout_marginTop="8dp" />
+                    android:lineSpacingMultiplier="1.25"
+                    android:layout_marginTop="6dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <Button
             android:id="@+id/btn_finish_onboarding"
-            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:text="Перейти к приложению →"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
-            app:backgroundTint="#4F46E5"
-            app:cornerRadius="12dp"
-            android:padding="12dp" />
+            android:background="@drawable/bg_btn_gradient_primary" />
 
     </LinearLayout>
 </ScrollView>
