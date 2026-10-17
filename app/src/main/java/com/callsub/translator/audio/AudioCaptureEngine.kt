@@ -2,8 +2,8 @@ package com.callsub.translator.audio
 
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.media.MediaRecorder.AudioSource
 import android.media.audiofx.AutomaticGainControl
-import android.media.audiofx.NoiseSuppressor
 import android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -11,9 +11,7 @@ import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * Непрерывный низколатентный аудиозахват с микрофона (16 кГц, 16-бит Mono PCM).
- *
- * ВНИМАНИЕ: AcousticEchoCanceler (AEC) намеренно отключён, так как AEC удаляет звук
- * из динамика (голос собеседника). Нам этот голос необходим для перевода.
+ * Оптимизирован для захвата голоса собеседника из динамика громкой связи.
  */
 class AudioCaptureEngine {
 
@@ -21,7 +19,6 @@ class AudioCaptureEngine {
     val audioFlow: SharedFlow<ByteArray> = _audioFlow
 
     private var recorder: AudioRecord? = null
-    private var noiseSuppressor: NoiseSuppressor? = null
     private var gainControl: AutomaticGainControl? = null
     private var recordingJob: Job? = null
 
@@ -31,38 +28,54 @@ class AudioCaptureEngine {
     fun start() {
         if (isRecording) return
 
-        val source = AudioSourceProbe.findWorkingSource()
+        val sources = listOf(
+            AudioSource.VOICE_COMMUNICATION,
+            AudioSource.MIC,
+            AudioSource.DEFAULT
+        )
+
         val minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL, ENCODING)
         val bufferSize = (minBufferSize * 2).coerceAtLeast(CHUNK_SIZE_BYTES * 4)
 
+        var selectedRecord: AudioRecord? = null
+        var selectedSource = AudioSource.MIC
+
+        for (source in sources) {
+            try {
+                val record = AudioRecord(source, SAMPLE_RATE, CHANNEL, ENCODING, bufferSize)
+                if (record.state == AudioRecord.STATE_INITIALIZED) {
+                    selectedRecord = record
+                    selectedSource = source
+                    Log.i(TAG, "AudioRecord инициализирован с источником: $source")
+                    break
+                } else {
+                    record.release()
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Источник $source недоступен: ${e.message}")
+            }
+        }
+
+        if (selectedRecord == null) {
+            Log.e(TAG, "Не удалось инициализировать AudioRecord ни с одним источником!")
+            return
+        }
+
         try {
-            val audioRecord = AudioRecord(source, SAMPLE_RATE, CHANNEL, ENCODING, bufferSize)
-            if (audioRecord.state != AudioRecord.STATE_INITIALIZED) {
-                Log.e(TAG, "AudioRecord не удалось инициализировать со статусом: ${audioRecord.state}")
-                audioRecord.release()
-                return
-            }
+            val sessionId = selectedRecord.audioSessionId
 
-            val sessionId = audioRecord.audioSessionId
-
-            // Включаем фильтрацию уличного/фонового шума
-            if (NoiseSuppressor.isAvailable()) {
-                noiseSuppressor = NoiseSuppressor.create(sessionId)?.apply { enabled = true }
-                Log.d(TAG, "NoiseSuppressor активирован")
-            }
-
-            // Выравниваем громкость речи
+            // Включаем автоматическое усиление звука (AGC), чтобы слышать динамик
             if (AutomaticGainControl.isAvailable()) {
                 gainControl = AutomaticGainControl.create(sessionId)?.apply { enabled = true }
                 Log.d(TAG, "AutomaticGainControl активирован")
             }
 
-            audioRecord.startRecording()
-            recorder = audioRecord
+            selectedRecord.startRecording()
+            recorder = selectedRecord
             isRecording = true
 
             recordingJob = CoroutineScope(Dispatchers.IO).launch {
-                Log.i(TAG, "Потоковая аудиозапись начата (16kHz PCM)")
+                Log.i(TAG, "Потоковая аудиозапись начата (16kHz PCM, source=$selectedSource)")
                 val buffer = ByteArray(CHUNK_SIZE_BYTES)
 
                 while (isActive && isRecording) {
@@ -86,9 +99,6 @@ class AudioCaptureEngine {
         try {
             recorder?.stop()
         } catch (_: Exception) {}
-
-        noiseSuppressor?.release()
-        noiseSuppressor = null
 
         gainControl?.release()
         gainControl = null

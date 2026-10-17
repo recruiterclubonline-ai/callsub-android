@@ -3,39 +3,44 @@ package com.callsub.translator.audio
 import kotlin.math.sqrt
 
 /**
- * Детектор пауз речи (Voice Activity Detector) на базе энергии RMS.
- * Используется в режиме REST Chunking Fallback для нарезки естественных смысловых фраз.
+ * Детектор речевой активности (VAD) и нарезки аудиопотока для синхронного перевода.
+ * Отправляет фразы каждые 1.5–1.8 секунды, либо при паузах между словами (300 мс).
  */
 class VoiceActivityDetector(
+    private val onEnergyUpdate: ((Double) -> Unit)? = null,
     private val onPhraseComplete: (ByteArray) -> Unit
 ) {
     private val accumulatedChunks = mutableListOf<ByteArray>()
     private var silenceDurationMs = 0
-    private var speechDurationMs = 0
+    private var totalDurationMs = 0
 
     fun processChunk(pcmBytes: ByteArray) {
         val rms = computeRms(pcmBytes)
+        onEnergyUpdate?.invoke(rms)
+
+        accumulatedChunks.add(pcmBytes)
+        totalDurationMs += CHUNK_DURATION_MS
 
         if (rms >= RMS_SPEECH_THRESHOLD) {
             silenceDurationMs = 0
-            accumulatedChunks.add(pcmBytes)
-            speechDurationMs += CHUNK_DURATION_MS
-
-            if (speechDurationMs >= MAX_PHRASE_DURATION_MS) {
-                flush()
-            }
         } else {
-            if (accumulatedChunks.isNotEmpty()) {
-                silenceDurationMs += CHUNK_DURATION_MS
-                if (silenceDurationMs >= SILENCE_GAP_THRESHOLD_MS) {
-                    flush()
-                }
-            }
+            silenceDurationMs += CHUNK_DURATION_MS
+        }
+
+        // Если собеседник сделал короткую естественную паузу (300 мс) и накоплено хотя бы 500 мс речи
+        if (silenceDurationMs >= SILENCE_GAP_THRESHOLD_MS && totalDurationMs >= MIN_PHRASE_DURATION_MS) {
+            flush()
+            return
+        }
+
+        // Если собеседник говорит непрерывно, отсекаем каждые 1.5 секунды для синхронности
+        if (totalDurationMs >= MAX_PHRASE_DURATION_MS) {
+            flush()
         }
     }
 
     private fun flush() {
-        if (speechDurationMs >= MIN_PHRASE_DURATION_MS) {
+        if (accumulatedChunks.isNotEmpty()) {
             val totalSize = accumulatedChunks.sumOf { it.size }
             val combined = ByteArray(totalSize)
             var offset = 0
@@ -43,11 +48,16 @@ class VoiceActivityDetector(
                 chunk.copyInto(combined, offset)
                 offset += chunk.size
             }
-            onPhraseComplete(combined)
+
+            // Проверяем суммарную энергию всего фрагмента перед отправкой в Gemini
+            val phraseRms = computeRms(combined)
+            if (phraseRms >= RMS_MIN_SEND_THRESHOLD) {
+                onPhraseComplete(combined)
+            }
         }
         accumulatedChunks.clear()
         silenceDurationMs = 0
-        speechDurationMs = 0
+        totalDurationMs = 0
     }
 
     private fun computeRms(pcmBytes: ByteArray): Double {
@@ -65,10 +75,12 @@ class VoiceActivityDetector(
     }
 
     companion object {
-        private const val RMS_SPEECH_THRESHOLD = 110.0
+        // Минимальный порог, отличающий реальный звук/голос от нулевой тишины
+        private const val RMS_SPEECH_THRESHOLD = 35.0
+        private const val RMS_MIN_SEND_THRESHOLD = 25.0
         private const val SILENCE_GAP_THRESHOLD_MS = 300
-        private const val MAX_PHRASE_DURATION_MS = 1800
-        private const val MIN_PHRASE_DURATION_MS = 350
+        private const val MAX_PHRASE_DURATION_MS = 1600
+        private const val MIN_PHRASE_DURATION_MS = 500
         private const val CHUNK_DURATION_MS = 100
     }
 }

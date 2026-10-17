@@ -137,23 +137,33 @@ class CallTranslatorService : Service() {
         }
 
         // 2. VAD Детектор для нарезки естественных фраз и отправки через быстрый REST
-        vadDetector = VoiceActivityDetector { phrasePcm ->
-            scope.launch {
-                if (rest != null && !isTtsSpeaking) {
-                    try {
-                        overlay.setSpeakerActive(true)
-                        val translated = rest.translateAudioChunk(phrasePcm)
-                        if (!translated.isNullOrBlank()) {
-                            overlay.updateSubtitles(germanText = "", russianText = translated.trim())
-                            overlay.setStatusColor(R.drawable.circle_green)
-                            logger?.logEntry(germanText = "", russianText = translated.trim())
+        vadDetector = VoiceActivityDetector(
+            onEnergyUpdate = { rms ->
+                if (rms >= 30.0) {
+                    overlay.setSpeakerActive(true)
+                    overlay.setStatusColor(R.drawable.circle_green)
+                }
+            },
+            onPhraseComplete = { phrasePcm ->
+                scope.launch {
+                    if (rest != null && !isTtsSpeaking) {
+                        try {
+                            val translated = rest.translateAudioChunk(phrasePcm)
+                            if (!translated.isNullOrBlank() &&
+                                !translated.contains("НЕТ", ignoreCase = true) &&
+                                !translated.contains("Тишина", ignoreCase = true)
+                            ) {
+                                overlay.updateSubtitles(germanText = "🇩🇪 Немецкая речь", russianText = translated.trim())
+                                overlay.setStatusColor(R.drawable.circle_green)
+                                logger?.logEntry(germanText = "", russianText = translated.trim())
+                            }
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")
                         }
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")
                     }
                 }
             }
-        }
+        )
 
         // 3. Передача аудио с микрофона: параллельно в сокет и в VAD-детектор
         scope.launch {
