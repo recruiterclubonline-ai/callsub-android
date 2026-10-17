@@ -171,6 +171,8 @@ class CallTranslatorService : Service() {
             }
         }
 
+        var continuousSilenceCount = 0
+
         vadDetector = VoiceActivityDetector(
             onEnergyUpdate = { rms ->
                 if (rms >= 20.0) {
