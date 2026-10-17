@@ -138,6 +138,9 @@ class CallTranslatorService : Service() {
 
         // 2. VAD Детектор для нарезки естественных фраз и отправки через быстрый REST
         var continuousSilenceCount = 0
+        var isTranslating = false
+        var lastTranslateTimestamp = 0L
+
         vadDetector = VoiceActivityDetector(
             onEnergyUpdate = { rms ->
                 if (rms >= 20.0) {
@@ -152,9 +155,16 @@ class CallTranslatorService : Service() {
                 }
             },
             onPhraseComplete = { phrasePcm ->
+                val now = System.currentTimeMillis()
+                if (isTranslating || (now - lastTranslateTimestamp < 1000L)) {
+                    return@VoiceActivityDetector
+                }
+                isTranslating = true
+                lastTranslateTimestamp = now
+
                 scope.launch {
-                    if (rest != null && !isTtsSpeaking) {
-                        try {
+                    try {
+                        if (rest != null && !isTtsSpeaking) {
                             when (val result = rest.translateAudioChunk(phrasePcm)) {
                                 is GeminiRestClient.Result.Success -> {
                                     overlay.updateSubtitles(
@@ -175,9 +185,11 @@ class CallTranslatorService : Service() {
                                     // Естественная тишина между фразами
                                 }
                             }
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")
                         }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")
+                    } finally {
+                        isTranslating = false
                     }
                 }
             }

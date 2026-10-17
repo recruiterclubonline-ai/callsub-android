@@ -60,17 +60,30 @@ class GeminiRestClient(private val apiKey: String) {
             }
 
             val body = gson.toJson(jsonPayload).toRequestBody("application/json".toMediaType())
-            val request = Request.Builder()
-                .url("$REST_URL?key=$apiKey")
+            
+            // Пробуем сначала gemini-2.5-flash-lite (быстрый, без жесткого лимита 20/день)
+            var request = Request.Builder()
+                .url("$PRIMARY_URL?key=$apiKey")
                 .post(body)
                 .build()
 
-            val response = client.newCall(request).execute()
+            var response = client.newCall(request).execute()
+
+            // Если вернулся 429 — автоматически переключаемся на резервную модель gemini-flash-latest
+            if (response.code == 429) {
+                Log.w(TAG, "Лимит на primary модели, переключаемся на fallback gemini-flash-latest...")
+                val fallbackRequest = Request.Builder()
+                    .url("$FALLBACK_URL?key=$apiKey")
+                    .post(body)
+                    .build()
+                response = client.newCall(fallbackRequest).execute()
+            }
+
             if (!response.isSuccessful) {
                 val errBody = response.body?.string() ?: ""
                 Log.w(TAG, "REST ошибка: ${response.code} - $errBody")
                 val errMsg = when (response.code) {
-                    429 -> "Превышен лимит запросов Google API (429)"
+                    429 -> "Превышен лимит запросов Google API (429). Подождите пару минут."
                     403 -> "Неверный или отозванный API-ключ (403)"
                     400 -> "Ошибка формата аудио (400)"
                     else -> "Сбой Google API (${response.code})"
@@ -85,7 +98,9 @@ class GeminiRestClient(private val apiKey: String) {
                 val content = candidates[0].asJsonObject.getAsJsonObject("content")
                 val parts = content?.getAsJsonArray("parts")
                 if (parts != null && parts.size() > 0) {
-                    val text = parts[0].asJsonObject.get("text")?.asString?.trim() ?: ""
+                    var text = parts[0].asJsonObject.get("text")?.asString?.trim() ?: ""
+                    // Очистка от возможных артефактов модели
+                    text = text.removePrefix("Вот перевод:").removePrefix("Перевод:").trim()
                     if (text.isNotBlank() && !text.contains("НЕТ_РЕЧИ", ignoreCase = true)) {
                         return@withContext Result.Success(text)
                     } else {
@@ -163,7 +178,9 @@ class GeminiRestClient(private val apiKey: String) {
 
     companion object {
         private const val TAG = "GeminiRestClient"
-        private const val REST_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+        private const val PRIMARY_URL =
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
+        private const val FALLBACK_URL =
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
     }
 }
