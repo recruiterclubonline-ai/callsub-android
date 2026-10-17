@@ -4,6 +4,7 @@
 
     <!-- 1. Запись звука с микрофона для захвата речи собеседника при громкой связи -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- 2. Плавающее окно поверх всех приложений (включая экран звонилки) -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -62,6 +63,20 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+
+        <!-- Служба специальных возможностей для приоритетного захвата звука звонка -->
+        <service
+            android:name=".service.CallAudioAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true"
+            android:foregroundServiceType="microphone">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
 
         <!-- Слушатель событий телефонии (начало/конец звонка) -->
         <receiver

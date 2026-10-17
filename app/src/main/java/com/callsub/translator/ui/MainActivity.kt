@@ -151,7 +151,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val btnEnableAcc = findViewById<Button>(R.id.btn_enable_acc_service)
+        btnEnableAcc.setOnClickListener {
+            Toast.makeText(
+                this,
+                "В открывшемся окне выберите «CallSub DE-RU» и включите переключатель",
+                Toast.LENGTH_LONG
+            ).show()
+            PermissionHelper.openAccessibilitySettings(this)
+        }
+
         checkInitialPermissions()
+        updateAccessibilityStatus()
     }
 
     override fun onResume() {
@@ -161,6 +172,28 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.btn_stop_test)
             else
                 getString(R.string.btn_start_test)
+
+        updateAccessibilityStatus()
+    }
+
+    private fun updateAccessibilityStatus() {
+        val isEnabled = PermissionHelper.isAccessibilityServiceEnabled(this)
+        val tvAccStatus = findViewById<TextView>(R.id.tv_acc_service_status) ?: return
+        val btnEnableAcc = findViewById<Button>(R.id.btn_enable_acc_service) ?: return
+
+        if (isEnabled) {
+            tvAccStatus.text = "✅ Служба перехвата активна: немецкая речь собеседника будет захватываться во время звонков без блокировок."
+            tvAccStatus.setTextColor(getColor(R.color.status_green))
+            btnEnableAcc.text = "✅ Служба включена"
+            btnEnableAcc.isEnabled = false
+            btnEnableAcc.backgroundTintList = getColorStateList(R.color.status_green)
+        } else {
+            tvAccStatus.text = "⚠️ Служба выключена. Включите CallSub в «Специальных возможностях», чтобы Android не блокировал микрофон во время звонка."
+            tvAccStatus.setTextColor(getColor(R.color.accent_yellow))
+            btnEnableAcc.text = "⚙️ Включить в настройках"
+            btnEnableAcc.isEnabled = true
+            btnEnableAcc.backgroundTintList = getColorStateList(R.color.accent_yellow)
+        }
     }
 
     private fun checkInitialPermissions() {

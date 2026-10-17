@@ -44,6 +44,7 @@ class CallTranslatorService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         Log.i(TAG, "CallTranslatorService создан")
     }
 
@@ -102,8 +103,10 @@ class CallTranslatorService : Service() {
 
         bindPipelines()
 
-        // Сразу запускаем захват микрофона, не дожидаясь ответа сокета
-        audioEngine?.start()
+        // Запускаем локальный захват только если сервис специальных возможностей еще не пишет звонок
+        if (!CallAudioAccessibilityService.isCapturingAudio) {
+            audioEngine?.start()
+        }
 
         return START_STICKY
     }
@@ -197,10 +200,21 @@ class CallTranslatorService : Service() {
             }
         )
 
-        // 3. Передача аудио с микрофона: параллельно в сокет и в VAD-детектор
+        // 3. Передача аудио в Gemini Live и VAD-детектор
+        // А) Поток из CallAudioAccessibilityService (приоритетный захват звонка без блокировок)
+        scope.launch {
+            CallAudioAccessibilityService.audioChunkFlow.collect { pcmChunk ->
+                if (!isTtsSpeaking) {
+                    liveClient.sendPcmChunk(pcmChunk)
+                    vadDetector?.processChunk(pcmChunk)
+                }
+            }
+        }
+
+        // Б) Поток из локального AudioCaptureEngine (для ручных тестов или когда Accessibility отключен)
         scope.launch {
             audio.audioFlow.collect { pcmChunk ->
-                if (!isTtsSpeaking) {
+                if (!CallAudioAccessibilityService.isCapturingAudio && !isTtsSpeaking) {
                     liveClient.sendPcmChunk(pcmChunk)
                     vadDetector?.processChunk(pcmChunk)
                 }
@@ -217,8 +231,29 @@ class CallTranslatorService : Service() {
         }
     }
 
+    /**
+     * Приостановка локального аудиозахвата при перехвате звука AccessibilityService.
+     */
+    fun pauseLocalAudio() {
+        audioEngine?.stop()
+        Log.i(TAG, "Локальный микрофон временно приостановлен в пользу CallAudioAccessibilityService")
+    }
+
+    /**
+     * Возобновление локального аудиозахвата после завершения звонка.
+     */
+    fun resumeLocalAudio() {
+        if (isServiceActive && audioEngine?.isCapturing != true) {
+            audioEngine?.start()
+            Log.i(TAG, "Локальный микрофон возобновлен")
+        }
+    }
+
     override fun onDestroy() {
         isServiceActive = false
+        if (instance == this) {
+            instance = null
+        }
 
         serviceScope?.cancel()
         serviceScope = null
@@ -279,6 +314,10 @@ class CallTranslatorService : Service() {
 
         @Volatile
         var isServiceActive = false
+            private set
+
+        @Volatile
+        var instance: CallTranslatorService? = null
             private set
     }
 }

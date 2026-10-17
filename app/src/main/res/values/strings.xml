@@ -12,4 +12,5 @@
     <string name="notification_channel_desc">Показывает статус активного перевода немецкой речи во время звонка</string>
     <string name="notification_title">CallSub: Перевод активен</string>
     <string name="notification_text">Синхронный перевод речи DE → RU включён</string>
+    <string name="accessibility_service_desc">Приоритетный захват звука микрофона во время телефонного звонка для синхронного перевода CallSub</string>
 </resources>

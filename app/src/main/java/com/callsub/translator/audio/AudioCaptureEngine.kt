@@ -25,6 +25,9 @@ class AudioCaptureEngine {
     @Volatile
     private var isRecording = false
 
+    val isCapturing: Boolean
+        get() = isRecording
+
     fun start() {
         if (isRecording) return
 

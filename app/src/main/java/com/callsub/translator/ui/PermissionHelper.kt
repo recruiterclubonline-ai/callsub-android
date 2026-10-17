@@ -65,4 +65,45 @@ object PermissionHelper {
         }
         context.startActivity(intent)
     }
+
+    /**
+     * Проверяет, включена ли служба специальных возможностей CallAudioAccessibilityService.
+     */
+    fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        if (com.callsub.translator.service.CallAudioAccessibilityService.isAccessibilityServiceActive) {
+            return true
+        }
+
+        val expectedComponentName = android.content.ComponentName(
+            context,
+            com.callsub.translator.service.CallAudioAccessibilityService::class.java
+        )
+        val enabledServicesSetting = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+
+        val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServicesSetting)
+
+        while (colonSplitter.hasNext()) {
+            val componentNameString = colonSplitter.next()
+            val enabledComponent = android.content.ComponentName.unflattenFromString(componentNameString)
+            if (enabledComponent != null && enabledComponent == expectedComponentName) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Открывает экран настроек Специальных возможностей (Accessibility).
+     */
+    fun openAccessibilitySettings(context: Context) {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    }
 }
+

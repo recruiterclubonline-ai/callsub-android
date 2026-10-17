@@ -86,6 +86,85 @@
                 app:cornerRadius="12dp" />
         </LinearLayout>
 
+        <!-- Блок: Служба перехвата звонков (Accessibility Service) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_accessibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#1E293B"
+            app:cardBackgroundColor="#131B2A"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🛡️"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Перехват звука звонка"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#F8FAFC" />
+
+                    <TextView
+                        android:id="@+id/tv_acc_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Android 10–15"
+                        android:textSize="10sp"
+                        android:textColor="#94A3B8"
+                        android:background="@drawable/bg_badge_lang"
+                        android:paddingStart="6dp"
+                        android:paddingEnd="6dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_acc_service_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Служба специальных возможностей необходима, чтобы система не глушила микрофон во время разговора по телефону."
+                    android:textSize="12sp"
+                    android:textColor="#94A3B8"
+                    android:lineSpacingMultiplier="1.2"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/btn_enable_acc_service"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⚙️ Включить в настройках"
+                    android:textColor="#FFFFFF"
+                    app:backgroundTint="#0284C7"
+                    app:cornerRadius="12dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Блок 1: API-ключ Google AI Studio -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -95,7 +174,7 @@
             app:strokeWidth="1dp"
             app:strokeColor="#1E293B"
             app:cardBackgroundColor="#131B2A"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
