@@ -137,25 +137,43 @@ class CallTranslatorService : Service() {
         }
 
         // 2. VAD Детектор для нарезки естественных фраз и отправки через быстрый REST
+        var continuousSilenceCount = 0
         vadDetector = VoiceActivityDetector(
             onEnergyUpdate = { rms ->
-                if (rms >= 30.0) {
+                if (rms >= 20.0) {
+                    continuousSilenceCount = 0
                     overlay.setSpeakerActive(true)
                     overlay.setStatusColor(R.drawable.circle_green)
+                } else {
+                    continuousSilenceCount++
+                    if (continuousSilenceCount > 50) { // 5 секунд тишины
+                        overlay.setSpeakerActive(false)
+                    }
                 }
             },
             onPhraseComplete = { phrasePcm ->
                 scope.launch {
                     if (rest != null && !isTtsSpeaking) {
                         try {
-                            val translated = rest.translateAudioChunk(phrasePcm)
-                            if (!translated.isNullOrBlank() &&
-                                !translated.contains("НЕТ", ignoreCase = true) &&
-                                !translated.contains("Тишина", ignoreCase = true)
-                            ) {
-                                overlay.updateSubtitles(germanText = "🇩🇪 Немецкая речь", russianText = translated.trim())
-                                overlay.setStatusColor(R.drawable.circle_green)
-                                logger?.logEntry(germanText = "", russianText = translated.trim())
+                            when (val result = rest.translateAudioChunk(phrasePcm)) {
+                                is GeminiRestClient.Result.Success -> {
+                                    overlay.updateSubtitles(
+                                        germanText = "🇩🇪 Немецкая речь",
+                                        russianText = result.translation
+                                    )
+                                    overlay.setStatusColor(R.drawable.circle_green)
+                                    logger?.logEntry(germanText = "", russianText = result.translation)
+                                }
+                                is GeminiRestClient.Result.Error -> {
+                                    overlay.updateSubtitles(
+                                        germanText = "⚠️ " + result.message,
+                                        russianText = "Код ошибки: ${result.code}. Проверьте соединение/ключ"
+                                    )
+                                    overlay.setStatusColor(R.drawable.circle_red)
+                                }
+                                is GeminiRestClient.Result.NoSpeech -> {
+                                    // Естественная тишина между фразами
+                                }
                             }
                         } catch (e: Exception) {
                             Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")

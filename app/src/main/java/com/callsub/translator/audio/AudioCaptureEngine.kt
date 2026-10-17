@@ -29,9 +29,10 @@ class AudioCaptureEngine {
         if (isRecording) return
 
         val sources = listOf(
-            AudioSource.VOICE_COMMUNICATION,
+            AudioSource.VOICE_RECOGNITION,
             AudioSource.MIC,
-            AudioSource.DEFAULT
+            AudioSource.DEFAULT,
+            AudioSource.VOICE_COMMUNICATION
         )
 
         val minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL, ENCODING)

@@ -26,7 +26,13 @@ class GeminiRestClient(private val apiKey: String) {
         .readTimeout(8, TimeUnit.SECONDS)
         .build()
 
-    suspend fun translateAudioChunk(pcmData: ByteArray): String? = withContext(Dispatchers.IO) {
+    sealed class Result {
+        data class Success(val translation: String) : Result()
+        object NoSpeech : Result()
+        data class Error(val code: Int, val message: String) : Result()
+    }
+
+    suspend fun translateAudioChunk(pcmData: ByteArray): Result = withContext(Dispatchers.IO) {
         try {
             val wavData = wrapPcmToWav(pcmData, sampleRate = 16000)
             val base64Data = Base64.encodeToString(wavData, Base64.NO_WRAP)
@@ -35,7 +41,7 @@ class GeminiRestClient(private val apiKey: String) {
                 add("contents", gson.toJsonTree(listOf(
                     mapOf(
                         "parts" to listOf(
-                            mapOf("text" to "Ты — синхронный переводчик. Моментально переведи немецкую речь из аудио на русский язык кратко и ёмко в виде субтитра. Выводи ТОЛЬКО русский перевод:"),
+                            mapOf("text" to "Ты — синхронный переводчик с немецкого на русский. Переведи эту речь кратко и ёмко в виде субтитров. Выведи ТОЛЬКО русский перевод. Если в аудио только тишина или шум без речи, ответь: НЕТ_РЕЧИ"),
                             mapOf(
                                 "inlineData" to mapOf(
                                     "mimeType" to "audio/wav",
@@ -47,6 +53,9 @@ class GeminiRestClient(private val apiKey: String) {
                 )))
                 add("generationConfig", JsonObject().apply {
                     addProperty("temperature", 0.0)
+                    add("thinkingConfig", JsonObject().apply {
+                        addProperty("thinkingBudget", 0)
+                    })
                 })
             }
 
@@ -58,24 +67,37 @@ class GeminiRestClient(private val apiKey: String) {
 
             val response = client.newCall(request).execute()
             if (!response.isSuccessful) {
-                Log.w(TAG, "REST ошибка: ${response.code}")
-                return@withContext null
+                val errBody = response.body?.string() ?: ""
+                Log.w(TAG, "REST ошибка: ${response.code} - $errBody")
+                val errMsg = when (response.code) {
+                    429 -> "Превышен лимит запросов Google API (429)"
+                    403 -> "Неверный или отозванный API-ключ (403)"
+                    400 -> "Ошибка формата аудио (400)"
+                    else -> "Сбой Google API (${response.code})"
+                }
+                return@withContext Result.Error(response.code, errMsg)
             }
 
-            val responseString = response.body?.string() ?: return@withContext null
+            val responseString = response.body?.string() ?: return@withContext Result.NoSpeech
             val root = JsonParser.parseString(responseString).asJsonObject
             val candidates = root.getAsJsonArray("candidates")
             if (candidates != null && candidates.size() > 0) {
                 val content = candidates[0].asJsonObject.getAsJsonObject("content")
-                val parts = content.getAsJsonArray("parts")
+                val parts = content?.getAsJsonArray("parts")
                 if (parts != null && parts.size() > 0) {
-                    return@withContext parts[0].asJsonObject.get("text")?.asString
+                    val text = parts[0].asJsonObject.get("text")?.asString?.trim() ?: ""
+                    if (text.isNotBlank() && !text.contains("НЕТ_РЕЧИ", ignoreCase = true)) {
+                        return@withContext Result.Success(text)
+                    } else {
+                        return@withContext Result.NoSpeech
+                    }
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка REST перевода: ${e.message}")
+            return@withContext Result.Error(-1, e.message ?: "Сетевая ошибка")
         }
-        return@withContext null
+        return@withContext Result.NoSpeech
     }
 
     private fun wrapPcmToWav(pcmData: ByteArray, sampleRate: Int): ByteArray {

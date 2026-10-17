@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                 btnRunMicTest.isEnabled = true
                 when (result) {
                     is MicTestEngine.TestResult.Success -> {
-                        tvMicTestStatus.text = "✅ Тест пройден! Микрофон и Google AI работают идеально."
+                        tvMicTestStatus.text = "✅ Перевод: \"${result.translation}\"\n(Микрофон и Google AI работают отлично!)"
                         tvMicTestStatus.setTextColor(getColor(R.color.status_green))
                     }
                     is MicTestEngine.TestResult.LowSignal -> {

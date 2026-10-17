@@ -19,7 +19,7 @@ import kotlin.math.sqrt
 class MicTestEngine(private val context: Context) {
 
     sealed class TestResult {
-        object Success : TestResult()
+        data class Success(val translation: String) : TestResult()
         data class LowSignal(val rms: Double) : TestResult()
         object ApiKeyMissing : TestResult()
         data class ApiError(val message: String) : TestResult()
@@ -98,13 +98,17 @@ class MicTestEngine(private val context: Context) {
             }
 
             val restClient = GeminiRestClient(apiKey)
-            val translatedText = restClient.translateAudioChunk(byteBuffer)
-
-            if (!translatedText.isNullOrBlank()) {
-                updateProgress("Перевод получен: $translatedText")
-                return@withContext TestResult.Success
-            } else {
-                return@withContext TestResult.ApiError("Ответ от модели пуст или не получен")
+            when (val res = restClient.translateAudioChunk(byteBuffer)) {
+                is GeminiRestClient.Result.Success -> {
+                    updateProgress("Перевод получен: ${res.translation}")
+                    return@withContext TestResult.Success(res.translation)
+                }
+                is GeminiRestClient.Result.Error -> {
+                    return@withContext TestResult.ApiError("${res.message} (код ${res.code})")
+                }
+                is GeminiRestClient.Result.NoSpeech -> {
+                    return@withContext TestResult.ApiError("Модель не распознала немецкую речь. Попробуйте сказать громче (например 'Guten Tag').")
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Сбой теста: ${e.message}", e)
@@ -115,6 +119,6 @@ class MicTestEngine(private val context: Context) {
     companion object {
         private const val TAG = "MicTestEngine"
         private const val TEST_DURATION_SECONDS = 3
-        private const val RMS_MIN_THRESHOLD = 120.0
+        private const val RMS_MIN_THRESHOLD = 20.0
     }
 }

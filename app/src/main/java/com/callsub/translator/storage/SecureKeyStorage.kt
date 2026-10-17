@@ -35,7 +35,13 @@ class SecureKeyStorage(context: Context) {
     fun getApiKey(): String? {
         val saved = prefs.getString(KEY_GEMINI_API, null)
         if (!saved.isNullOrBlank()) {
-            return saved.trim().removeSuffix(".")
+            val clean = saved.trim().removeSuffix(".")
+            // Если в кэше остался старый отозванный ключ AIzaSy — очищаем и берем рабочий DEFAULT_KEY
+            if (clean.startsWith("AIzaSy")) {
+                prefs.edit().remove(KEY_GEMINI_API).apply()
+                return DEFAULT_KEY
+            }
+            return clean
         }
         return DEFAULT_KEY
     }
