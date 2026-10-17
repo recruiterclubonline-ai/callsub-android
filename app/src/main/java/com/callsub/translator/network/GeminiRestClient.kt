@@ -53,9 +53,6 @@ class GeminiRestClient(private val apiKey: String) {
                 )))
                 add("generationConfig", JsonObject().apply {
                     addProperty("temperature", 0.0)
-                    add("thinkingConfig", JsonObject().apply {
-                        addProperty("thinkingBudget", 0)
-                    })
                 })
             }
 
@@ -181,6 +178,6 @@ class GeminiRestClient(private val apiKey: String) {
         private const val PRIMARY_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent"
         private const val FALLBACK_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent"
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
     }
 }
