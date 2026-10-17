@@ -7,6 +7,8 @@ import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioRecord
 import android.media.MediaRecorder.AudioSource
+import android.media.audiofx.AcousticEchoCanceler
+import android.media.audiofx.NoiseSuppressor
 import android.os.Build
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
@@ -27,6 +29,8 @@ class CallAudioAccessibilityService : AccessibilityService() {
     private var recordingJob: Job? = null
 
     private var audioRecord: AudioRecord? = null
+    private var echoCanceler: AcousticEchoCanceler? = null
+    private var noiseSuppressor: NoiseSuppressor? = null
     private var telephonyManager: TelephonyManager? = null
     private var audioManager: AudioManager? = null
 
@@ -188,6 +192,32 @@ class CallAudioAccessibilityService : AccessibilityService() {
             }
 
             audioRecord = record
+
+            // Подключение аппаратного эхоподавления (AcousticEchoCanceler) и шумоподавления (NoiseSuppressor)
+            try {
+                if (AcousticEchoCanceler.isAvailable()) {
+                    echoCanceler = AcousticEchoCanceler.create(record.audioSessionId)?.apply {
+                        enabled = true
+                        Log.i(TAG, "Аппаратный AcousticEchoCanceler успешно активирован (Session: ${record.audioSessionId})")
+                    }
+                } else {
+                    Log.w(TAG, "AcousticEchoCanceler не поддерживается чипсетом устройства")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Не удалось включить AcousticEchoCanceler: ${e.message}")
+            }
+
+            try {
+                if (NoiseSuppressor.isAvailable()) {
+                    noiseSuppressor = NoiseSuppressor.create(record.audioSessionId)?.apply {
+                        enabled = true
+                        Log.i(TAG, "Аппаратный NoiseSuppressor успешно активирован")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Не удалось включить NoiseSuppressor: ${e.message}")
+            }
+
             record.startRecording()
             isRecording = true
             isCapturingAudio = true
@@ -249,6 +279,22 @@ class CallAudioAccessibilityService : AccessibilityService() {
 
         recordingJob?.cancel()
         recordingJob = null
+
+        try {
+            echoCanceler?.release()
+        } catch (e: Exception) {
+            Log.w(TAG, "Ошибка освобождения AcousticEchoCanceler: ${e.message}")
+        } finally {
+            echoCanceler = null
+        }
+
+        try {
+            noiseSuppressor?.release()
+        } catch (e: Exception) {
+            Log.w(TAG, "Ошибка освобождения NoiseSuppressor: ${e.message}")
+        } finally {
+            noiseSuppressor = null
+        }
 
         try {
             audioRecord?.let { record ->
