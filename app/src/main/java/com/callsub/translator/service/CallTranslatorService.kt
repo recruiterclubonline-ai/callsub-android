@@ -137,9 +137,39 @@ class CallTranslatorService : Service() {
         }
 
         // 2. VAD Детектор для нарезки естественных фраз и отправки через быстрый REST
-        var continuousSilenceCount = 0
-        var isTranslating = false
-        var lastTranslateTimestamp = 0L
+        val phraseQueue = kotlinx.coroutines.channels.Channel<ByteArray>(capacity = 16)
+
+        // Фоновый последовательный воркер: обрабатывает каждую фразу без потерь и без спама квоты
+        scope.launch {
+            for (phrasePcm in phraseQueue) {
+                if (rest != null && !isTtsSpeaking) {
+                    try {
+                        when (val result = rest.translateAudioChunk(phrasePcm)) {
+                            is GeminiRestClient.Result.Success -> {
+                                overlay.updateSubtitles(
+                                    germanText = "🇩🇪 Немецкая речь",
+                                    russianText = result.translation
+                                )
+                                overlay.setStatusColor(R.drawable.circle_green)
+                                logger?.logEntry(germanText = "", russianText = result.translation)
+                            }
+                            is GeminiRestClient.Result.Error -> {
+                                overlay.updateSubtitles(
+                                    germanText = "⚠️ " + result.message,
+                                    russianText = "Код ошибки: ${result.code}. Проверьте соединение/ключ"
+                                )
+                                overlay.setStatusColor(R.drawable.circle_red)
+                            }
+                            is GeminiRestClient.Result.NoSpeech -> {
+                                // Тишина между фразами
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")
+                    }
+                }
+            }
+        }
 
         vadDetector = VoiceActivityDetector(
             onEnergyUpdate = { rms ->
@@ -155,43 +185,8 @@ class CallTranslatorService : Service() {
                 }
             },
             onPhraseComplete = { phrasePcm ->
-                val now = System.currentTimeMillis()
-                if (isTranslating || (now - lastTranslateTimestamp < 1000L)) {
-                    return@VoiceActivityDetector
-                }
-                isTranslating = true
-                lastTranslateTimestamp = now
-
-                scope.launch {
-                    try {
-                        if (rest != null && !isTtsSpeaking) {
-                            when (val result = rest.translateAudioChunk(phrasePcm)) {
-                                is GeminiRestClient.Result.Success -> {
-                                    overlay.updateSubtitles(
-                                        germanText = "🇩🇪 Немецкая речь",
-                                        russianText = result.translation
-                                    )
-                                    overlay.setStatusColor(R.drawable.circle_green)
-                                    logger?.logEntry(germanText = "", russianText = result.translation)
-                                }
-                                is GeminiRestClient.Result.Error -> {
-                                    overlay.updateSubtitles(
-                                        germanText = "⚠️ " + result.message,
-                                        russianText = "Код ошибки: ${result.code}. Проверьте соединение/ключ"
-                                    )
-                                    overlay.setStatusColor(R.drawable.circle_red)
-                                }
-                                is GeminiRestClient.Result.NoSpeech -> {
-                                    // Естественная тишина между фразами
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Ошибка перевода чанка через REST: ${e.message}")
-                    } finally {
-                        isTranslating = false
-                    }
-                }
+                // Отправляем в очередь — ни одна фраза собеседника не теряется!
+                phraseQueue.trySend(phrasePcm)
             }
         )
 
