@@ -59,15 +59,55 @@ class TranscriptViewActivity : AppCompatActivity() {
     private fun showCallDetails(summary: TranscriptLogger.CallSummary) {
         lifecycleScope.launch {
             val entries = logger.loadEntriesForCall(summary.filename)
-            val fullText = entries.joinToString("\n\n") { entry ->
-                "[${entry.time}] ${entry.russian}"
+            val dialogView = LayoutInflater.from(this@TranscriptViewActivity)
+                .inflate(R.layout.dialog_transcript_details, null)
+
+            val tvDate = dialogView.findViewById<TextView>(R.id.tv_dialog_date)
+            val llMessages = dialogView.findViewById<android.widget.LinearLayout>(R.id.ll_transcript_messages)
+            val btnCopy = dialogView.findViewById<android.widget.Button>(R.id.btn_dialog_copy)
+            val btnClose = dialogView.findViewById<android.widget.Button>(R.id.btn_dialog_close)
+
+            tvDate.text = summary.formattedDate
+
+            val inflater = LayoutInflater.from(this@TranscriptViewActivity)
+            if (entries.isEmpty()) {
+                val emptyTv = TextView(this@TranscriptViewActivity).apply {
+                    text = "В этом разговоре нет распознанных фраз."
+                    setTextColor(getColor(R.color.text_sub))
+                    setPadding(16, 32, 16, 32)
+                }
+                llMessages.addView(emptyTv)
+            } else {
+                for (entry in entries) {
+                    val bubbleView = inflater.inflate(R.layout.item_transcript_bubble, llMessages, false)
+                    val tvTime = bubbleView.findViewById<TextView>(R.id.tv_bubble_time)
+                    val tvText = bubbleView.findViewById<TextView>(R.id.tv_bubble_text)
+                    tvTime.text = entry.time
+                    tvText.text = entry.russian
+                    llMessages.addView(bubbleView)
+                }
             }
 
-            AlertDialog.Builder(this@TranscriptViewActivity)
-                .setTitle("Разговор от ${summary.formattedDate}")
-                .setMessage(if (fullText.isNotBlank()) fullText else "В этом разговоре нет распознанных фраз.")
-                .setPositiveButton("Закрыть", null)
-                .show()
+            val dialog = AlertDialog.Builder(this@TranscriptViewActivity)
+                .setView(dialogView)
+                .create()
+
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            val fullTranscriptText = entries.joinToString("\n\n") { "[${it.time}] ${it.russian}" }
+
+            btnCopy.setOnClickListener {
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("CallSub Transcript", fullTranscriptText)
+                clipboard.setPrimaryClip(clip)
+                android.widget.Toast.makeText(this@TranscriptViewActivity, "Текст разговора скопирован!", android.widget.Toast.LENGTH_SHORT).show()
+            }
+
+            btnClose.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
         }
     }
 

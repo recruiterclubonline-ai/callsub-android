@@ -188,9 +188,24 @@ class OverlayManager(
 
             if (russianText.isNotBlank()) {
                 synchronized(subtitleHistory) {
-                    subtitleHistory.add(russianText)
-                    if (subtitleHistory.size > maxVisibleSubtitles) {
-                        subtitleHistory.removeAt(0)
+                    val last = subtitleHistory.lastOrNull()
+                    val isContinuation = last != null && (
+                        russianText.startsWith("и ", ignoreCase = true) ||
+                        russianText.startsWith("а ", ignoreCase = true) ||
+                        russianText.startsWith("в ", ignoreCase = true) ||
+                        russianText.startsWith("на ", ignoreCase = true) ||
+                        russianText.startsWith("секунд", ignoreCase = true) ||
+                        russianText.startsWith("минут", ignoreCase = true) ||
+                        (russianText.firstOrNull()?.isLowerCase() == true)
+                    )
+
+                    if (isContinuation && last != null) {
+                        subtitleHistory[subtitleHistory.size - 1] = "$last $russianText".trim()
+                    } else {
+                        subtitleHistory.add(russianText)
+                        if (subtitleHistory.size > maxVisibleSubtitles) {
+                            subtitleHistory.removeAt(0)
+                        }
                     }
                     tvRussian?.text = subtitleHistory.joinToString("\n\n")
                 }

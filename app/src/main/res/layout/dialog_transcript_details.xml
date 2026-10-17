@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_overlay_rounded"
+    android:padding="22dp">
+
+    <!-- Header: Icon & Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <FrameLayout
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_icon_bubble_blue"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="📜"
+                android:textSize="18sp" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_dialog_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Стенограмма звонка"
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:textColor="#F8FAFC" />
+
+            <TextView
+                android:id="@+id/tv_dialog_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="17.10.2026 • 14:08"
+                android:textSize="12sp"
+                android:textColor="#38BDF8"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_dialog_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DE ➔ RU"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="#34D399"
+            android:background="@drawable/bg_badge_lang"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp" />
+    </LinearLayout>
+
+    <!-- Scrollable Transcript Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:maxHeight="380dp"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        android:layout_marginBottom="18dp">
+
+        <LinearLayout
+            android:id="@+id/ll_transcript_messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom Buttons: Copy & Close -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_dialog_copy"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:text="📋 Скопировать"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:background="@drawable/bg_btn_secondary_glass"
+            android:layout_marginEnd="10dp" />
+
+        <Button
+            android:id="@+id/btn_dialog_close"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:text="Закрыть"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:background="@drawable/bg_btn_gradient_primary" />
+    </LinearLayout>
+
+</LinearLayout>

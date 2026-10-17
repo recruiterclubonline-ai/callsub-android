@@ -94,13 +94,40 @@ class TranscriptLogger(private val context: Context) {
         val file = File(getHistoryDir(), filename)
         if (!file.exists()) return@withContext emptyList()
 
-        return@withContext file.readLines().mapNotNull { line ->
+        val raw = file.readLines().mapNotNull { line ->
             try {
                 gson.fromJson(line, TranscriptEntry::class.java)
             } catch (_: Exception) {
                 null
             }
         }
+
+        val merged = mutableListOf<TranscriptEntry>()
+        for (item in raw) {
+            val last = merged.lastOrNull()
+            val text = item.russian.trim()
+            if (text.isBlank()) continue
+
+            // Если фраза является продолжением мысли (начинается с союза, со строчной буквы или времени)
+            val isContinuation = last != null && (
+                text.startsWith("и ", ignoreCase = true) ||
+                text.startsWith("а ", ignoreCase = true) ||
+                text.startsWith("в ", ignoreCase = true) ||
+                text.startsWith("на ", ignoreCase = true) ||
+                text.startsWith("секунд", ignoreCase = true) ||
+                text.startsWith("минут", ignoreCase = true) ||
+                (text.firstOrNull()?.isLowerCase() == true)
+            )
+
+            if (isContinuation && last != null) {
+                merged[merged.size - 1] = last.copy(
+                    russian = "${last.russian} $text".trim()
+                )
+            } else {
+                merged.add(item)
+            }
+        }
+        return@withContext merged
     }
 
     private fun getHistoryDir(): File {
