@@ -41,7 +41,7 @@ class GeminiRestClient(private val apiKey: String) {
                 add("contents", gson.toJsonTree(listOf(
                     mapOf(
                         "parts" to listOf(
-                            mapOf("text" to "Ты — синхронный переводчик с немецкого на русский. Переведи эту речь кратко и ёмко в виде субтитров. Выведи ТОЛЬКО русский перевод. Если в аудио только тишина или шум без речи, ответь: НЕТ_РЕЧИ"),
+                            mapOf("text" to "Ты — профессиональный синхронный переводчик немецких телефонных звонков на русский язык. Точно переведи немецкую речь из аудио в виде краткого субтитра. Правила: 1) Выводи ТОЛЬКО русский перевод без кавычек и пояснений. 2) Переводи строго то, что реально произнесено, не додумывай слова. 3) Если в аудио только шум или тишина, выведи строго: НЕТ_РЕЧИ"),
                             mapOf(
                                 "inlineData" to mapOf(
                                     "mimeType" to "audio/wav",
@@ -179,8 +179,8 @@ class GeminiRestClient(private val apiKey: String) {
     companion object {
         private const val TAG = "GeminiRestClient"
         private const val PRIMARY_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent"
         private const val FALLBACK_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent"
     }
 }

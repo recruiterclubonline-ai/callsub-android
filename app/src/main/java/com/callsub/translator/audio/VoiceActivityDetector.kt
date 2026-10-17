@@ -80,11 +80,11 @@ class VoiceActivityDetector(
 
     companion object {
         // Минимальный порог, отличающий реальный звук/голос от фонового шума комнаты
-        private const val RMS_SPEECH_THRESHOLD = 28.0
-        private const val RMS_MIN_SEND_THRESHOLD = 22.0
-        private const val SILENCE_GAP_THRESHOLD_MS = 350
-        private const val MAX_PHRASE_DURATION_MS = 2400
-        private const val MIN_PHRASE_DURATION_MS = 600
+        private const val RMS_SPEECH_THRESHOLD = 26.0
+        private const val RMS_MIN_SEND_THRESHOLD = 20.0
+        private const val SILENCE_GAP_THRESHOLD_MS = 550
+        private const val MAX_PHRASE_DURATION_MS = 3800
+        private const val MIN_PHRASE_DURATION_MS = 1600
         private const val CHUNK_DURATION_MS = 100
     }
 }
