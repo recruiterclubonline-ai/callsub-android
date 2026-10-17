@@ -29,9 +29,9 @@ class AudioCaptureEngine {
         if (isRecording) return
 
         val sources = listOf(
-            AudioSource.VOICE_RECOGNITION,
             AudioSource.MIC,
             AudioSource.DEFAULT,
+            AudioSource.VOICE_RECOGNITION,
             AudioSource.VOICE_COMMUNICATION
         )
 
@@ -82,7 +82,8 @@ class AudioCaptureEngine {
                 while (isActive && isRecording) {
                     val read = recorder?.read(buffer, 0, buffer.size) ?: -1
                     if (read > 0) {
-                        _audioFlow.emit(buffer.copyOf(read))
+                        val amplified = amplifyPcm(buffer, read, 2.5f)
+                        _audioFlow.emit(amplified)
                     }
                 }
             }
@@ -108,6 +109,20 @@ class AudioCaptureEngine {
         recorder = null
 
         Log.i(TAG, "Потоковая аудиозапись остановлена")
+    }
+
+    private fun amplifyPcm(buffer: ByteArray, read: Int, gain: Float = 2.5f): ByteArray {
+        val out = ByteArray(read)
+        val samples = read / 2
+        for (i in 0 until samples) {
+            val low = buffer[i * 2].toInt() and 0xFF
+            val high = buffer[i * 2 + 1].toInt()
+            val sample = ((high shl 8) or low).toShort()
+            val amplified = (sample * gain).toInt().coerceIn(-32768, 32767).toShort()
+            out[i * 2] = (amplified.toInt() and 0xFF).toByte()
+            out[i * 2 + 1] = ((amplified.toInt() shr 8) and 0xFF).toByte()
+        }
+        return out
     }
 
     companion object {

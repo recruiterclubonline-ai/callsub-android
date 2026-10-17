@@ -175,18 +175,23 @@ class CallTranslatorService : Service() {
 
         vadDetector = VoiceActivityDetector(
             onEnergyUpdate = { rms ->
-                if (rms >= 20.0) {
+                val rounded = rms.toInt()
+                if (rms >= 14.0) {
                     continuousSilenceCount = 0
                     overlay.setSpeakerActive(true)
                     overlay.setStatusColor(R.drawable.circle_green)
+                    overlay.updateStatus("🟢 Слышу речь (сигнал: $rounded)")
                 } else {
                     continuousSilenceCount++
-                    if (continuousSilenceCount > 50) { // 5 секунд тишины
+                    if (continuousSilenceCount > 30) { // 3 сек тишины
                         overlay.setSpeakerActive(false)
+                        overlay.setStatusColor(R.drawable.circle_yellow)
+                        overlay.updateStatus("🇩🇪 Слушаю речь... ($rounded)")
                     }
                 }
             },
             onPhraseComplete = { phrasePcm ->
+                overlay.updateStatus("⚡ Перевожу...")
                 // Отправляем в очередь — ни одна фраза собеседника не теряется!
                 phraseQueue.trySend(phrasePcm)
             }

@@ -184,6 +184,12 @@ class OverlayManager(
         }
     }
 
+    fun updateStatus(statusText: String) {
+        tvGerman?.post {
+            tvGerman?.text = statusText
+        }
+    }
+
     fun appendStreamingTranslation(chunkText: String) {
         tvRussian?.post {
             val current = tvRussian?.text?.toString() ?: ""

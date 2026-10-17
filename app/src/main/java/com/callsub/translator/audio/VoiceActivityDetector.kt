@@ -29,15 +29,23 @@ class VoiceActivityDetector(
             silenceDurationMs += CHUNK_DURATION_MS
         }
 
-        // Если собеседник сделал короткую естественную паузу (350 мс) и накоплено хотя бы 600 мс речи
-        if (silenceDurationMs >= SILENCE_GAP_THRESHOLD_MS && totalDurationMs >= MIN_PHRASE_DURATION_MS) {
+        // 1. Если была речь и собеседник сделал естественную паузу (400 мс)
+        if (hasSpeechDetectedInCurrentPhrase && silenceDurationMs >= SILENCE_GAP_THRESHOLD_MS && totalDurationMs >= MIN_PHRASE_DURATION_MS) {
             flush()
             return
         }
 
-        // Если собеседник говорит непрерывно, отсекаем каждые 2.2 секунды для синхронности
+        // 2. Если собеседник говорит непрерывно дольше 3.2 секунд — отсекаем порцию
         if (totalDurationMs >= MAX_PHRASE_DURATION_MS) {
             flush()
+            return
+        }
+
+        // 3. Если речи не было и накапливается чистая тишина > 1 сек — очищаем буфер без отправки
+        if (!hasSpeechDetectedInCurrentPhrase && totalDurationMs >= 1000) {
+            accumulatedChunks.clear()
+            totalDurationMs = 0
+            silenceDurationMs = 0
         }
     }
 
@@ -52,11 +60,8 @@ class VoiceActivityDetector(
                 offset += chunk.size
             }
 
-            // Отправляем только если в аудио реально есть энергия речи
-            val phraseRms = computeRms(combined)
-            if (phraseRms >= RMS_MIN_SEND_THRESHOLD) {
-                onPhraseComplete(combined)
-            }
+            // Отправляем фразу на перевод
+            onPhraseComplete(combined)
         }
         accumulatedChunks.clear()
         silenceDurationMs = 0
@@ -72,19 +77,18 @@ class VoiceActivityDetector(
         for (i in 0 until samples) {
             val low = pcmBytes[i * 2].toInt() and 0xFF
             val high = pcmBytes[i * 2 + 1].toInt()
-            val sample = (high shl 8) or low
+            val sample = ((high shl 8) or low).toShort()
             sumSquares += sample.toDouble() * sample.toDouble()
         }
         return sqrt(sumSquares / samples)
     }
 
     companion object {
-        // Минимальный порог, отличающий реальный звук/голос от фонового шума комнаты
-        private const val RMS_SPEECH_THRESHOLD = 26.0
-        private const val RMS_MIN_SEND_THRESHOLD = 20.0
-        private const val SILENCE_GAP_THRESHOLD_MS = 550
-        private const val MAX_PHRASE_DURATION_MS = 3800
-        private const val MIN_PHRASE_DURATION_MS = 1600
+        // Порог обнаружения голоса из динамика (с учетом 2.5x цифрового усиления)
+        private const val RMS_SPEECH_THRESHOLD = 14.0
+        private const val SILENCE_GAP_THRESHOLD_MS = 400
+        private const val MAX_PHRASE_DURATION_MS = 3200
+        private const val MIN_PHRASE_DURATION_MS = 800
         private const val CHUNK_DURATION_MS = 100
     }
 }
