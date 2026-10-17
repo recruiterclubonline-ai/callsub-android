@@ -22,9 +22,13 @@ class GeminiRestClient(private val apiKey: String) {
 
     private val gson = Gson()
     private val client = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(8, TimeUnit.SECONDS)
+        .connectTimeout(4, TimeUnit.SECONDS)
+        .readTimeout(6, TimeUnit.SECONDS)
         .build()
+
+    // Хранение контекста последних переведённых фраз для связности перевода
+    private val translationHistory = mutableListOf<String>()
+    private val maxHistorySize = 5
 
     sealed class Result {
         data class Success(val translation: String) : Result()
@@ -37,11 +41,27 @@ class GeminiRestClient(private val apiKey: String) {
             val wavData = wrapPcmToWav(pcmData, sampleRate = 16000)
             val base64Data = Base64.encodeToString(wavData, Base64.NO_WRAP)
 
+            // Формируем контекст предыдущих фраз для связности
+            val contextBlock = if (translationHistory.isNotEmpty()) {
+                "\nПредыдущие фразы разговора (для контекста):\n" +
+                translationHistory.joinToString("\n") { "— $it" } + "\n"
+            } else ""
+
+            val systemPrompt = """Ты — синхронный переводчик телефонного звонка с немецкого на русский.
+Аудио записано через громкую связь, качество может быть низким.
+$contextBlock
+СТРОГИЕ ПРАВИЛА:
+1. Выведи ТОЛЬКО русский перевод произнесённых слов, без кавычек и пояснений.
+2. Переводи ВСЮ услышанную речь целиком, не сокращай и не пропускай слова.
+3. Если собеседник назвал имя, адрес, номер или дату — передай их точно как есть.
+4. Если слово непонятно — переведи по контексту, не пиши «неразборчиво».
+5. Если в аудио ТОЛЬКО шум, тишина или нет речи — выведи одно слово: НЕТ_РЕЧИ"""
+
             val jsonPayload = JsonObject().apply {
                 add("contents", gson.toJsonTree(listOf(
                     mapOf(
                         "parts" to listOf(
-                            mapOf("text" to "Ты — профессиональный синхронный переводчик немецких телефонных звонков на русский язык. Точно переведи немецкую речь из аудио в виде краткого субтитра. Правила: 1) Выводи ТОЛЬКО русский перевод без кавычек и пояснений. 2) Переводи строго то, что реально произнесено, не додумывай слова. 3) Если в аудио только шум или тишина, выведи строго: НЕТ_РЕЧИ"),
+                            mapOf("text" to systemPrompt),
                             mapOf(
                                 "inlineData" to mapOf(
                                     "mimeType" to "audio/wav",
@@ -52,7 +72,8 @@ class GeminiRestClient(private val apiKey: String) {
                     )
                 )))
                 add("generationConfig", JsonObject().apply {
-                    addProperty("temperature", 0.0)
+                    addProperty("temperature", 0.1)
+                    addProperty("maxOutputTokens", 200)
                 })
             }
 
@@ -99,6 +120,12 @@ class GeminiRestClient(private val apiKey: String) {
                     // Очистка от возможных артефактов модели
                     text = text.removePrefix("Вот перевод:").removePrefix("Перевод:").trim()
                     if (text.isNotBlank() && !text.contains("НЕТ_РЕЧИ", ignoreCase = true)) {
+                        synchronized(translationHistory) {
+                            translationHistory.add(text)
+                            if (translationHistory.size > maxHistorySize) {
+                                translationHistory.removeAt(0)
+                            }
+                        }
                         return@withContext Result.Success(text)
                     } else {
                         return@withContext Result.NoSpeech

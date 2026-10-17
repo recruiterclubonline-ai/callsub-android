@@ -85,10 +85,10 @@ class VoiceActivityDetector(
 
     companion object {
         // Порог обнаружения голоса из динамика (с учетом 2.5x цифрового усиления)
-        private const val RMS_SPEECH_THRESHOLD = 14.0
-        private const val SILENCE_GAP_THRESHOLD_MS = 400
-        private const val MAX_PHRASE_DURATION_MS = 3200
-        private const val MIN_PHRASE_DURATION_MS = 800
+        private const val RMS_SPEECH_THRESHOLD = 13.0
+        private const val SILENCE_GAP_THRESHOLD_MS = 280
+        private const val MAX_PHRASE_DURATION_MS = 2400
+        private const val MIN_PHRASE_DURATION_MS = 600
         private const val CHUNK_DURATION_MS = 100
     }
 }

@@ -17,13 +17,14 @@ class OverlayManager(
     private val context: Context,
     private val phrasesPlayer: QuickPhrasesPlayer? = null
 ) {
-    private var windowManager: WindowManager? = null
-    private var overlayView: View? = null
-
     private var tvGerman: TextView? = null
     private var tvRussian: TextView? = null
     private var tvSpeakerIcon: TextView? = null
     private var statusIndicator: View? = null
+    private var scrollSubtitles: androidx.core.widget.NestedScrollView? = null
+
+    private val subtitleHistory = mutableListOf<String>()
+    private val maxVisibleSubtitles = 4
 
     private val fontSizes = floatArrayOf(18f, 22f, 28f)
     private var fontIndex = 1
@@ -47,6 +48,7 @@ class OverlayManager(
 
             tvGerman = view.findViewById(R.id.tv_german)
             tvRussian = view.findViewById(R.id.tv_russian)
+            scrollSubtitles = view.findViewById(R.id.scroll_subtitles)
             tvSpeakerIcon = view.findViewById(R.id.tv_speaker_icon)
             statusIndicator = view.findViewById(R.id.status_indicator)
 
@@ -178,9 +180,22 @@ class OverlayManager(
     }
 
     fun updateSubtitles(germanText: String, russianText: String) {
-        tvGerman?.post {
+        tvRussian?.post {
             if (germanText.isNotBlank()) tvGerman?.text = germanText
-            tvRussian?.text = russianText
+
+            if (russianText.isNotBlank()) {
+                synchronized(subtitleHistory) {
+                    subtitleHistory.add(russianText)
+                    if (subtitleHistory.size > maxVisibleSubtitles) {
+                        subtitleHistory.removeAt(0)
+                    }
+                    tvRussian?.text = subtitleHistory.joinToString("\n\n")
+                }
+
+                scrollSubtitles?.post {
+                    scrollSubtitles?.fullScroll(View.FOCUS_DOWN)
+                }
+            }
         }
     }
 
@@ -225,8 +240,12 @@ class OverlayManager(
             overlayView = null
             tvGerman = null
             tvRussian = null
+            scrollSubtitles = null
             tvSpeakerIcon = null
             statusIndicator = null
+            synchronized(subtitleHistory) {
+                subtitleHistory.clear()
+            }
         }
     }
 

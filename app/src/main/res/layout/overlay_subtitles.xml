@@ -113,23 +113,31 @@
 
     </LinearLayout>
 
-    <!-- Основной блок синхронного перевода на русский (крупный, яркий, легко читаемый на бегу) -->
-    <TextView
-        android:id="@+id/tv_russian"
+    <!-- Основной блок синхронного перевода на русский со скроллом и историей нескольких последних фраз -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_subtitles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_russian"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:lineSpacingMultiplier="1.2"
-        android:paddingTop="8dp"
-        android:paddingBottom="10dp"
-        android:shadowColor="#99000000"
-        android:shadowDx="0"
-        android:shadowDy="2"
-        android:shadowRadius="3"
-        android:maxLines="4"
-        android:text="Слушаю немецкую речь собеседника..." />
+        android:maxHeight="240dp"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:id="@+id/tv_russian"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_russian"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:lineSpacingMultiplier="1.25"
+            android:paddingTop="8dp"
+            android:paddingBottom="10dp"
+            android:shadowColor="#99000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="3"
+            android:text="Слушаю немецкую речь собеседника..." />
+    </androidx.core.widget.NestedScrollView>
 
     <!-- Нижняя панель быстрых действий с тактильными кнопками -->
     <LinearLayout
