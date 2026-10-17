@@ -16,7 +16,9 @@ import com.callsub.translator.tts.QuickPhrasesPlayer
 class OverlayManager(
     private val context: Context,
     private val phrasesPlayer: QuickPhrasesPlayer? = null
-) {
+    private var windowManager: WindowManager? = null
+    private var overlayView: View? = null
+
     private var tvGerman: TextView? = null
     private var tvRussian: TextView? = null
     private var tvSpeakerIcon: TextView? = null
