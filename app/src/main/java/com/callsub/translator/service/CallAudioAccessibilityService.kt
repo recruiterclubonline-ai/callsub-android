@@ -109,7 +109,8 @@ class CallAudioAccessibilityService : AccessibilityService() {
                 restoreAudioSettings()
             }
             TelephonyManager.CALL_STATE_RINGING -> {
-                Log.i(TAG, "Входящий вызов (RINGING)...")
+                Log.i(TAG, "Входящий вызов (RINGING). Подготавливаем оверлей...")
+                ensureTranslatorServiceStarted()
             }
         }
     }

@@ -179,7 +179,7 @@ class CallTranslatorService : Service() {
         vadDetector = VoiceActivityDetector(
             onEnergyUpdate = { rms ->
                 val rounded = rms.toInt()
-                if (rms >= 14.0) {
+                if (rms >= 11.0) {
                     continuousSilenceCount = 0
                     overlay.setSpeakerActive(true)
                     overlay.setStatusColor(R.drawable.circle_green)
@@ -200,33 +200,35 @@ class CallTranslatorService : Service() {
             }
         )
 
-        // 3. Передача аудио в Gemini Live и VAD-детектор
-        // А) Поток из CallAudioAccessibilityService (приоритетный захват звонка без блокировок)
+        // 3. Передача аудио в VAD-детектор и Live сокет
+        // А) Поток из CallAudioAccessibilityService (приоритетный захват сотового звонка)
         scope.launch {
             CallAudioAccessibilityService.audioChunkFlow.collect { pcmChunk ->
                 if (!isTtsSpeaking) {
-                    liveClient.sendPcmChunk(pcmChunk)
                     vadDetector?.processChunk(pcmChunk)
+                    liveClient.sendPcmChunk(pcmChunk)
                 }
             }
         }
 
-        // Б) Поток из локального AudioCaptureEngine (для ручных тестов или когда Accessibility отключен)
+        // Б) Поток из локального AudioCaptureEngine (резерв/ручной тест/когда Accessibility не активен)
         scope.launch {
             audio.audioFlow.collect { pcmChunk ->
                 if (!CallAudioAccessibilityService.isCapturingAudio && !isTtsSpeaking) {
-                    liveClient.sendPcmChunk(pcmChunk)
                     vadDetector?.processChunk(pcmChunk)
+                    liveClient.sendPcmChunk(pcmChunk)
                 }
             }
         }
 
-        // 4. Прием потоковых токенов от Live сокета (если он доступен)
+        // 4. Прием потоковых токенов от Live сокета (только если Live активен и генерирует текст)
         scope.launch {
             liveClient.subtitlesFlow.collect { textToken ->
-                overlay.appendStreamingTranslation(textToken)
-                overlay.setStatusColor(R.drawable.circle_green)
-                logger?.logEntry(germanText = "", russianText = textToken)
+                if (textToken.isNotBlank()) {
+                    overlay.appendStreamingTranslation(textToken)
+                    overlay.setStatusColor(R.drawable.circle_green)
+                    logger?.logEntry(germanText = "", russianText = textToken)
+                }
             }
         }
     }

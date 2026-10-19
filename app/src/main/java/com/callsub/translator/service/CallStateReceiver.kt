@@ -26,8 +26,9 @@ class CallStateReceiver : BroadcastReceiver() {
         }
 
         when (stateStr) {
+            TelephonyManager.EXTRA_STATE_RINGING,
             TelephonyManager.EXTRA_STATE_OFFHOOK -> {
-                Log.i(TAG, "Трубка снята (OFFHOOK) -> Запуск сервиса перевода")
+                Log.i(TAG, "Входящий вызов или поднятие трубки ($stateStr) -> Запуск сервиса перевода")
                 if (!CallTranslatorService.isServiceActive) {
                     val serviceIntent = Intent(context, CallTranslatorService::class.java)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
